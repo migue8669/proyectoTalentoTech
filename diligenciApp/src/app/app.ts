@@ -1,15 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { GoogleMap, MapMarker } from '@angular/google-maps'; // Opcional, para usar referencias o eventos
+import { GoogleMap, GoogleMapsModule, MapMarker } from '@angular/google-maps'; // Opcional, para usar referencias o eventos
+import { CommonModule } from '@angular/common'; // <--- ¡NUEVA IMPORTACIÓN REQUERIDA!
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet,GoogleMapsModule,CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('ProyectoPet');
+  protected readonly title = signal('DiligenciApp');
 
   center: google.maps.LatLngLiteral = {
     lat: 19.4326, // Latitud de ejemplo (Ciudad de México)
