@@ -1,0 +1,34 @@
+<form [formGroup]="miFormulario" (ngSubmit)="onSubmit()" class="form-container">
+
+  <div class="form-group">
+    <label for="nombre" class="form-label">Nombre:</label>
+    <input
+      id="nombre"
+      type="text"
+      formControlName="nombre"
+      class="form-input"
+      [class.input-error]="miFormulario.get('nombre')?.invalid && miFormulario.get('nombre')?.touched"
+    >
+  </div>
+
+  <div class="form-group">
+    <label for="servicio" class="form-label">Servicio:</label>
+    <textarea
+      id="servicio"
+      formControlName="servicio"
+      class="form-textarea"
+      [class.input-error]="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched"
+    ></textarea>
+
+    <div *ngIf="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched">
+      <p *ngIf="miFormulario.get('servicio')?.errors?.['required']" class="error-message">
+        El servicio requerido es obligatorio.
+      </p>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="miFormulario.invalid" class="submit-button">
+    Enviar
+  </button>
+
+</form>
