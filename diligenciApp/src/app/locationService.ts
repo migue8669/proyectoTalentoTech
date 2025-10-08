@@ -1,5 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common'; // Importante para la verificación
+import { response } from 'express';
 
 export interface Coordenadas {
   lat: number;
@@ -10,59 +11,51 @@ export interface Coordenadas {
   providedIn: 'root'
 })
 export class LocationService {
+    private platformId = Inject(PLATFORM_ID);
 
-  // 1. Inyectar PLATFORM_ID en el constructor
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+    // Retorna una promesa que resuelve a las coordenadas del usuario
+    async getPosition(): Promise<Coordenadas> {
 
-  /**
-   * Obtiene la posición actual del usuario (latitud y longitud).
-   * @returns Una Promesa que resuelve con el objeto Coordenadas o rechaza con un error.
-   */
-  getPosition(): Promise<Coordenadas> {
 
-    // 2. VERIFICACIÓN CRÍTICA: Asegurarse de que estamos en el navegador
-    if (!isPlatformBrowser(this.platformId)) {
-      // Si estamos en el servidor (SSR), el objeto 'navigator' no existe.
-      console.warn("Geolocalización no disponible en el servidor (SSR). Saltando...");
-      // Devolvemos un error controlado
-      return Promise.reject(new Error("La geolocalización solo está disponible en el cliente (navegador)."));
+        // Si llegamos aquí, estamos en el navegador y las APIs existen.
+        return new Promise((resolve, reject) => {
+            console.log("Intentando obtener la ubicación...");
+            console.log(navigator.geolocation.getCurrentPosition(
+                (position) => {position}))
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    // Mapear el error real de Geolocation a un mensaje amigable
+                    let message = 'Error desconocido al obtener la ubicación.';
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            message = "Permiso denegado por el usuario.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message = "Información de ubicación no disponible.";
+                            break;
+                        case error.TIMEOUT:
+                            message = "Tiempo de espera agotado.";
+                            break;
+                        default:
+                            message = error.message || 'Fallo de geolocalización.';
+                    }
+                    reject(new Error(message));
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        });
     }
-
-    // Si estamos en el navegador, procedemos con la API de geolocalización
-    return new Promise((resolve, reject) => {
-      console.log("Intentando obtener la ubicación...");
-
-      // 3. Verificar si el navegador soporta la geolocalización
-      if ('geolocation' in navigator) {
-
-        // 4. Solicitar la posición actual
-        navigator.geolocation.getCurrentPosition(
-          (resp) => {
-            console.log(resp, " respuesta");
-
-            console.log("Respuesta de geolocalización obtenida.");
-            // Éxito: resolver la promesa con las coordenadas
-            resolve({
-              lng: resp.coords.longitude,
-              lat: resp.coords.latitude
-            });
-          },
-          (err) => {
-            // Error: rechazar la promesa (ej. si el usuario deniega el permiso)
-            console.error("Error real de geolocalización:", err);
-            reject(err);
-          },
-          // Opciones opcionales
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          }
-        );
-      } else {
-        // 5. El navegador no soporta la API
-        reject(new Error('Geolocalización no soportada por este navegador.'));
-      }
-    });
-  }
 }
+
+

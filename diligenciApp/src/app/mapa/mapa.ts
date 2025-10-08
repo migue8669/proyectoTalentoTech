@@ -35,7 +35,13 @@ interface MapMarker extends google.maps.LatLngLiteral {
               <map-advanced-marker [position]="pos" [title]="pos.title"></map-advanced-marker>
           }
         </google-map>
-
+     <div class="flex flex-col items-center mt-4">
+                            <button
+                                (click)="getLocation()"
+                                class="px-4 py-2 bg-yellow-600 text-white font-bold rounded-lg shadow-md hover:bg-yellow-700 transition duration-150 transform hover:scale-105"
+                            >
+                                Intentar de Nuevo
+                            </button>
         <div class="coord-display">
           <p><strong>Centro del Mapa:</strong> Lat: {{ center.lat | number:'1.4-4' }} | Lng: {{ center.lng | number:'1.4-4' }}</p>
           <p><strong>Marcadores:</strong> {{ markerPositions.length }}</p>
@@ -75,6 +81,7 @@ export class Mapa implements OnInit {
 
   ngOnInit(): void {
     this.getLocation();
+
   }
 
   // Usamos async/await para un manejo de promesa más limpio y seguro
@@ -83,21 +90,26 @@ export class Mapa implements OnInit {
     this.errorGeoloc = null;
 
     try {
+              const pos: Coordenadas = await this.locationService.getPosition();
+
+
         console.log('INTENTO: Llamando a getPosition...');
-        const pos: Coordenadas = await this.locationService.getPosition();
 
         // 3. Comprobación de valores válidos
-        if (typeof pos.lat !== 'number' || typeof pos.lng !== 'number' || (pos.lat === 0 && pos.lng === 0)) {
-            console.error('ERROR DE DATOS: Coordenadas recibidas son 0,0 o inválidas.', pos);
-            throw new Error("Coordenadas recibidas inválidas o cero. El mapa mantendrá la ubicación por defecto.");
-        }
+
 
         // 4. Los datos son válidos, procedemos a actualizar
         this.latitude = pos.lat;
         this.longitude = pos.lng;
+console.log(this.latitude,this.longitude);
 
         // CLAVE: RE-ASIGNAR COMPLETAMENTE LOS OBJETOS PARA FORZAR LA REACTIVIDAD
         this.center = { lat: pos.lat, lng: pos.lng };
+  this.markerPositions = [{
+    lat: pos.lat,
+    lng: pos.lng,
+    title: 'Mi ubicación actual'
+  }];
 
 
         this.zoom = 14;
@@ -110,7 +122,11 @@ export class Mapa implements OnInit {
         // En caso de error, el mapa mantiene las coordenadas por defecto.
         this.center = { lat: this.latitude, lng: this.longitude };
         this.markerPositions = [{ lat: this.latitude, lng: this.longitude, title: 'Ubicación por defecto (Error GPS)' }];
-
+this.mapOptions = {
+  ...this.mapOptions,
+  // ⚠️ cambia una propiedad para forzar el refresh del componente
+  disableDoubleClickZoom: !this.mapOptions.disableDoubleClickZoom
+};
         console.error('FALLO: Se ejecutó el bloque catch. Error:', error.message);
     } finally {
         // Esta línea se ejecuta SIEMPRE al finalizar el try o el catch
