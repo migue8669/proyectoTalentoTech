@@ -3,6 +3,7 @@ import { GoogleMap, GoogleMapsModule, MapMarker } from '@angular/google-maps'; /
 import { CommonModule } from '@angular/common';
 import { Mapa } from './mapa/mapa';
 import { Muro } from './muro/muro'; // <--- ¡NUEVA IMPORTACIÓN REQUERIDA!
+import { Coordenadas } from './locationService';
 
 @Component({
   selector: 'app-root',
