@@ -2,68 +2,168 @@
 /* Estilos Principales y Layout */
 /* ---------------------------------------------------- */
 .map-container {
-    max-width: 900px;
-    margin: 20px auto;
-    border-radius: 12px;
-    overflow: hidden;
-    /* Sombra mejorada */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 0 5px 10px rgba(0, 0, 0, 0.1);
-    font-family: 'Inter', sans-serif;
+  max-width: 900px;
+  margin: 20px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  /* Sombra elegante */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25), 0 5px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f8fafc, #e8f0fe 80%);
 }
+
+/* ---------------------------------------------------- */
+/* Encabezado */
+/* ---------------------------------------------------- */
 .header {
-  padding: 15px;
-  /* Color de fondo suave */
+  padding: 20px;
   background-color: #e8f0fe;
   border-bottom: 1px solid #c5d7ed;
   text-align: center;
-  color: #1a202c; /* Texto oscuro */
+  color: #1a202c;
 }
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1d4ed8;
+  margin: 0;
+}
+
 .subtitle {
-    font-size: 0.9rem;
-    color: #4a5568;
-    margin-top: 5px;
+  font-size: 0.9rem;
+  color: #4a5568;
+  margin-top: 5px;
+}
+
+/* ---------------------------------------------------- */
+/* Mapa */
+/* ---------------------------------------------------- */
+.google-map {
+  width: 100%;
+  height: 450px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------------------------------------------------- */
+/* Ventana de información (InfoWindow) */
+/* ---------------------------------------------------- */
+.info-window {
+  padding: 10px;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  font-size: 0.9rem;
+  max-width: 240px;
+}
+
+.info-window strong {
+  font-size: 1rem;
+  color: #1e3a8a;
+}
+
+.info-window span {
+  display: block;
+  color: #475569;
+  font-size: 0.85rem;
+  margin-top: 3px;
+}
+
+.info-window small {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+/* ---------------------------------------------------- */
+/* Botones dentro del InfoWindow */
+/* ---------------------------------------------------- */
+.marker-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.marker-actions button {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-edit {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #1d4ed8;
+  transform: scale(1.05);
+}
+
+.btn-delete {
+  background-color: #dc2626;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
 }
 
 /* ---------------------------------------------------- */
 /* Mensajes de Estado */
 /* ---------------------------------------------------- */
 .status-box {
-    padding: 15px;
-    font-weight: 600;
-    text-align: center;
-    border-radius: 8px;
-    margin: 10px 15px;
+  padding: 15px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 8px;
+  margin: 10px 15px;
 }
+
 .loading-message {
-    background-color: #d6eaff;
-    color: #004d99;
+  background-color: #d6eaff;
+  color: #004d99;
 }
+
 .error-message {
-    background-color: #ffcccc;
-    color: #a8071a;
-    border: 1px solid #f5222d;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  background-color: #ffcccc;
+  color: #a8071a;
+  border: 1px solid #f5222d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ---------------------------------------------------- */
 /* Coordenadas Display */
 /* ---------------------------------------------------- */
 .coord-display {
-  /* Fondo oscuro para contraste */
   background-color: #1a202c;
   color: #e2e8f0;
   padding: 10px 15px;
   font-size: 0.9rem;
   text-align: center;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 /* ---------------------------------------------------- */
 /* Botón de Reintento */
 /* ---------------------------------------------------- */
 .retry-button {
-  background-color: #1890ff; /* Azul primario */
+  background-color: #1890ff;
   color: white;
   padding: 8px 15px;
   border: none;
@@ -74,11 +174,30 @@
   transition: background-color 0.2s, transform 0.1s;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
+
 .retry-button:hover {
   background-color: #096dd9;
   transform: translateY(-1px);
 }
+
 .retry-button:active {
   background-color: #0050b3;
   transform: translateY(0);
+}
+
+/* ---------------------------------------------------- */
+/* Sección inferior (muro o información adicional) */
+/* ---------------------------------------------------- */
+.muro-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 20px auto;
+}
+.muro-content {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  color: #334155;
 }

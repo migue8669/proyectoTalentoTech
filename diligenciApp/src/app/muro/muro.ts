@@ -75,7 +75,7 @@ export class Muro implements OnInit {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  onChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges en Muro detectado');
     console.log(changes);
 
