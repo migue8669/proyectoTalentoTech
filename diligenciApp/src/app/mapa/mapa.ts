@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
 import { HttpClient } from '@angular/common/http';
-import { Coordenadas, LocationService } from '../locationService';
+import { Coordenadas, LocationService } from '../services/locationService';
 import { Muro } from '../muro/muro';
 
 // 🔹 Tipo personalizado de marcador

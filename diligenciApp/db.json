@@ -39,6 +39,14 @@
       "direccion": "Cra 36 A #32, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
       "lat": 6.261530380617977,
       "lng": -75.54813498765523
+    },
+    {
+      "id": "5189",
+      "nombre": "prueba 6",
+      "servicio": "prueba 6",
+      "direccion": "Cra. 36 # 66G-47, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.261521129323745,
+      "lng": -75.54815290905557
     }
   ]
 }
