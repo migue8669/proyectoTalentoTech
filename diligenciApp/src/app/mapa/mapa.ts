@@ -8,6 +8,7 @@ import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps
 import { HttpClient } from '@angular/common/http';
 import { Coordenadas, LocationService } from '../services/locationService';
 import { Muro } from '../muro/muro';
+import { AuthService } from '../services/auth.service';
 
 // 🔹 Tipo personalizado de marcador
 interface CustomMarker extends google.maps.LatLngLiteral {
@@ -50,8 +51,8 @@ export class Mapa implements OnInit {
   constructor(
     private locationService: LocationService,
     private cdRef: ChangeDetectorRef,
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    private auth: AuthService) {}
 
   ngOnInit(): void {
     this.getLocation();
@@ -153,4 +154,10 @@ export class Mapa implements OnInit {
       });
     }
   }
+
+
+logout() {
+  this.auth.logout();
+}
+
 }
