@@ -1,54 +1,59 @@
-import { Muro } from './../muro/muro';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, Output } from '@angular/core';
-import { GoogleMapsModule } from '@angular/google-maps';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
+import { HttpClient } from '@angular/common/http';
 import { Coordenadas, LocationService } from '../locationService';
+import { Muro } from '../muro/muro';
 
-// Extensión de LatLngLiteral para incluir el título del marcador
-interface MapMarker extends google.maps.LatLngLiteral {
+// 🔹 Tipo personalizado de marcador
+interface CustomMarker extends google.maps.LatLngLiteral {
   title: string;
+  servicio?: string;
+  direccion?: string;
 }
 
 @Component({
   selector: 'app-mapa',
   standalone: true,
-  imports: [GoogleMapsModule, CommonModule, Muro],
+  imports: [CommonModule, GoogleMapsModule, Muro],
   templateUrl: './mapa.html',
   styleUrl: './mapa.css',
 })
 export class Mapa implements OnInit {
-  // 🚨 CORRECCIÓN CLAVE: Inicializar con un valor por defecto.
-  // Esto asegura que Muro reciba un objeto válido inmediatamente.
-
   newLocationData: Coordenadas = { lat: 40.7128, lng: -74.006 };
-
-  latitude: number = 40.7128; // Default NYC
-  longitude: number = -74.006;
-
-  errorGeoloc: string | null = null;
   isLoading = false;
+  errorGeoloc: string | null = null;
+  selectedMarker: any = null; // ✅ agrega esto
 
-  center: google.maps.LatLngLiteral = { lat: this.latitude, lng: this.longitude };
+  center: google.maps.LatLngLiteral = { lat: 40.7128, lng: -74.006 };
   zoom = 12;
 
-  markerPositions: MapMarker[] = [
-    { lat: this.latitude, lng: this.longitude, title: 'Ubicación Inicial' },
-  ];
+  markerPositions: CustomMarker[] = [];
 
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'roadmap',
     zoomControl: true,
-    scrollwheel: false,
+    streetViewControl: false,
+    fullscreenControl: true,
+    scrollwheel: true,
     disableDoubleClickZoom: true,
     maxZoom: 18,
-    minZoom: 8,
-    mapId: 'DEMO_MAP_ID',
+    minZoom: 5,
   };
 
-  constructor(private locationService: LocationService, private cdRef: ChangeDetectorRef) {}
+  constructor(
+    private locationService: LocationService,
+    private cdRef: ChangeDetectorRef,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.getLocation();
+    this.loadMarkersFromJson();
   }
 
   async getLocation() {
@@ -56,41 +61,65 @@ export class Mapa implements OnInit {
     this.errorGeoloc = null;
 
     try {
+      console.log('📍 Obteniendo ubicación actual...');
       const pos: Coordenadas = await this.locationService.getPosition();
 
-      console.log('INTENTO: Llamando a getPosition...'); // Creamos una nueva referencia de objeto (pos) para forzar ngOnChanges en Muro.
-
       this.newLocationData = pos;
-      console.log('✅ Ubicación obtenida y nueva referencia asignada:', this.newLocationData); // Actualizar mapa con la nueva posición
-      this.cdRef.detectChanges();
-      this.latitude = pos.lat;
-      this.longitude = pos.lng;
       this.center = { lat: pos.lat, lng: pos.lng };
-      this.markerPositions = [
-        {
-          lat: pos.lat,
-          lng: pos.lng,
-          title: 'Mi ubicación actual',
-        },
-      ];
       this.zoom = 14;
 
-      console.log('ÉXITO: Ubicación obtenida y mapa actualizado.', this.center);
-    } catch (error: any) {
-      this.errorGeoloc = 'Error al obtener la ubicación: ' + error.message; // Si falla, seteamos explícitamente a undefined para que Muro muestre el mensaje de error. //this.newLocationData = undefined;
+      // Agregar marcador del usuario
+      this.markerPositions.push({
+        lat: pos.lat,
+        lng: pos.lng,
+        title: 'Mi ubicación actual',
+        servicio: 'Ubicación personal',
+        direccion: 'Detectada por el navegador',
+      });
 
-      this.center = { lat: this.latitude, lng: this.longitude };
-      this.markerPositions = [
-        { lat: this.latitude, lng: this.longitude, title: 'Ubicación por defecto (Error GPS)' },
-      ];
-      this.mapOptions = {
-        ...this.mapOptions,
-        disableDoubleClickZoom: !this.mapOptions.disableDoubleClickZoom,
-      };
-      console.error('FALLO: Se ejecutó el bloque catch. Error:', error.message);
+      this.cdRef.detectChanges();
+      console.log('✅ Ubicación:', pos);
+    } catch (error: any) {
+      this.errorGeoloc = 'Error al obtener ubicación: ' + error.message;
+      console.error(this.errorGeoloc);
     } finally {
       this.isLoading = false;
-      console.log('FINALIZADO: Estado de carga reseteado.');
     }
   }
+
+  /**
+   * Carga los marcadores desde el JSON local o API
+   */
+  loadMarkersFromJson() {
+    // 🔹 Puedes usar 'assets/db.json' si el archivo está dentro de Angular
+    // 🔹 O cambiar a 'http://localhost:3000/reportes' si usas json-server
+    const url = 'http://localhost:3000/reportes';
+
+    this.http.get<CustomMarker[]>(url).subscribe({
+      next: (data) => {
+        console.log('📦 Marcadores cargados:', data);
+        this.markerPositions = [
+          ...this.markerPositions,
+          ...data.map((m) => ({
+            lat: Number(m.lat),
+            lng: Number(m.lng),
+            title: m.title || (m as any).nombre || 'Punto sin nombre',
+            servicio: m.servicio,
+            direccion: m.direccion,
+          })),
+        ];
+        this.cdRef.detectChanges();
+      },
+      error: (err) => console.error('⚠️ Error al cargar db.json:', err),
+    });
+  }
+
+  /**
+   * Abre la ventana de información del marcador
+   */
+openInfoWindow(markerData: CustomMarker, markerRef: MapMarker, infoWindow: MapInfoWindow) {
+  this.selectedMarker = markerData;
+  infoWindow.open(markerRef);
+}
+
 }

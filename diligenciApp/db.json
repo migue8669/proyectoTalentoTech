@@ -1,0 +1,44 @@
+{
+  "reportes": [
+    {
+      "id": "7b1d",
+      "nombre": "prueba",
+      "servicio": "prueba",
+      "direccion": "Cra. 36 # 66G-47, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.261534519430949,
+      "lng": -75.54814594455239
+    },
+    {
+      "id": "94ef",
+      "nombre": "prueba2",
+      "servicio": "prueba2",
+      "direccion": "Cra. 36 # 66G-47, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.271534519430949,
+      "lng": -75.54814594455239
+    },
+    {
+      "id": "9422",
+      "nombre": "prueba 3",
+      "servicio": "prueba 3",
+      "direccion": "Cra 36 A #32, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.261530380617977,
+      "lng": -75.54813498765523
+    },
+    {
+      "id": "5a49",
+      "nombre": "prueba 4",
+      "servicio": "prueba 4",
+      "direccion": "Cra 36 A #32, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.261560165079905,
+      "lng": -75.54813119959198
+    },
+    {
+      "id": "95e8",
+      "nombre": "prueba 5",
+      "servicio": "prueba 5",
+      "direccion": "Cra 36 A #32, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.261530380617977,
+      "lng": -75.54813498765523
+    }
+  ]
+}

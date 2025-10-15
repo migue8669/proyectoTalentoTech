@@ -1,46 +1,63 @@
-  <div class="map-container p-4 bg-gray-50 min-h-screen">
-      <div class="header mb-6 p-4 bg-white rounded-xl shadow-lg">
-        <h1 class="text-3xl font-extrabold text-blue-700">Servicio de Geolocalización</h1>
-      </div>
+<div class="map-container p-4 bg-gray-50 min-h-screen">
+  <div class="header mb-6 p-4 bg-white rounded-xl shadow-lg">
+    <h1 class="text-3xl font-extrabold text-blue-700">
+      Servicio de Geolocalización
+    </h1>
+  </div>
 
-      <!-- Mapa de Google -->
+  <!-- 🗺️ Mapa -->
+  <google-map
+    height="450px"
+    width="100%"
+    [options]="mapOptions"
+    [center]="center"
+    [zoom]="zoom"
+    class="rounded-xl shadow-2xl overflow-hidden"
+  >
+    @for (marker of markerPositions; track marker) {
+      <map-marker
+        #markerElem="mapMarker"
+        [position]="{ lat: marker.lat, lng: marker.lng }"
+        [title]="marker.title"
+(mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
+      ></map-marker>
 
-      <google-map
-        height="450px"
-        width="100%"
-        [options]="mapOptions"
-        [center]="center"
-        [zoom]="zoom"
-        class="rounded-xl shadow-2xl overflow-hidden"
-      >
-        @for (pos of markerPositions; track pos.title) {
-        <map-advanced-marker [position]="pos" [title]="pos.title"></map-advanced-marker> }
-      </google-map>
-
-      <div class="flex flex-col items-center mt-4">
-        <button
-          (click)="getLocation()"
-          [disabled]="isLoading"
-          class="px-6 py-3 my-4 w-full max-w-sm bg-yellow-600 text-white font-bold rounded-full shadow-lg hover:bg-yellow-700 transition duration-150 transform hover:scale-105 disabled:opacity-50"
-        >
-         {{ isLoading ? 'Cargando...' : 'Obtener mi Ubicación Actual' }}
-        </button>
-
-        @if (errorGeoloc) {
-        <div class="text-red-600 p-3 bg-red-100 rounded-lg max-w-sm text-center">
-         {{ errorGeoloc }}
+      <map-info-window  #infoWindow="mapInfoWindow">
+        <div class="p-2">
+          <strong>{{ marker.title }}</strong><br />
+          <span>{{ marker.servicio }}</span><br />
+          <small>{{ marker.direccion }}</small>
         </div>
-         }
-        <div
-          class="coord-display mt-4 p-4 bg-blue-50 rounded-lg shadow-inner w-full max-w-lg text-center"
-        >
-          <p>
-            <strong>Centro del Mapa:</strong> Lat: {{ center.lat | number : '1.4-4' }} | Lng:
-            {{ center.lng | number : '1.4-4' }}
-          </p>
-        </div>
-      </div>
+      </map-info-window>
+    }
+  </google-map>
 
-      <!-- 🚨 Conexión del Input: Pasa la nueva referencia de newLocationData al muro -->
+  <div class="flex flex-col items-center mt-4">
+    <button
+      (click)="getLocation()"
+      [disabled]="isLoading"
+      class="px-6 py-3 my-4 w-full max-w-sm bg-yellow-600 text-white font-bold rounded-full shadow-lg hover:bg-yellow-700 transition duration-150 transform hover:scale-105 disabled:opacity-50"
+    >
+      {{ isLoading ? 'Cargando...' : 'Obtener mi Ubicación Actual' }}
+    </button>
+
+    @if (errorGeoloc) {
+      <div class="text-red-600 p-3 bg-red-100 rounded-lg max-w-sm text-center">
+        {{ errorGeoloc }}
+      </div>
+    }
+
+    <div
+      class="coord-display mt-4 p-4 bg-blue-50 rounded-lg shadow-inner w-full max-w-lg text-center"
+    >
+      <p>
+        <strong>Centro del Mapa:</strong>
+        Lat: {{ center.lat | number : '1.4-4' }} |
+        Lng: {{ center.lng | number : '1.4-4' }}
+      </p>
     </div>
-           <app-muro [coordenadasEntrada]="newLocationData"></app-muro>
+  </div>
+
+  <!-- 🧩 Conexión con el muro -->
+  <app-muro [coordenadasEntrada]="newLocationData"></app-muro>
+</div>

@@ -1,0 +1,36 @@
+{
+  "reportes": [
+    {
+      "id": "1",
+      "nombre": "Juan Pérez",
+      "servicio": "Plomería",
+      "direccion": "Calle 123 #45-67"
+    },
+    {
+      "id": "0600",
+      "nombre": "as",
+      "servicio": "as",
+      "direccion": "New York City Hall, New York, NY 10007, EE. UU."
+    },
+    {
+      "id": "d90c",
+      "nombre": "as",
+      "servicio": "as",
+      "direccion": "New York City Hall, New York, NY 10007, EE. UU."
+    },
+    {
+      "id": "2843",
+      "nombre": "as",
+      "servicio": "as",
+      "direccion": "Cra. 36 # 66G-41, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia"
+    },
+    {
+      "id": "b4fd",
+      "nombre": "as",
+      "servicio": "as",
+      "direccion": "Cra. 36 # 66G-47, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 0,
+      "lng": 0
+    }
+  ]
+}

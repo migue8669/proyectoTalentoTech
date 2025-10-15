@@ -4,11 +4,14 @@ import { ChangeDetectorRef, Component, Input, OnInit, SimpleChanges, Inject, PLA
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Coordenadas } from '../locationService';
+import { Reporte, ReporteService } from '../services/reporte';
 
 interface ReporteServicioDTO {
   nombre: FormControl<string>;
   servicio: FormControl<string>;
   direccion?: FormControl<Coordenadas | undefined>;
+  lat:FormControl<number | undefined>;
+  lng:FormControl<number | undefined>;
 }
 
 @Component({
@@ -18,7 +21,7 @@ interface ReporteServicioDTO {
   styleUrl: './muro.css',
 })
 export class Muro implements OnInit {
-  @Input() coordenadasEntrada!: Coordenadas;
+  @Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
 
   direccion: string = 'Cargando dirección...';
   lista = new Array<Coordenadas>();
@@ -30,6 +33,8 @@ export class Muro implements OnInit {
     private locationService: LocationService,
     private cdRef: ChangeDetectorRef,
     private http: HttpClient,
+      private reporteService: ReporteService, // ← nuevo
+
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     // Detecta si el código corre en el navegador
@@ -40,6 +45,8 @@ export class Muro implements OnInit {
       nombre: new FormControl('', { validators: Validators.required, nonNullable: true }),
       servicio: new FormControl('', { validators: Validators.required, nonNullable: true }),
       direccion: new FormControl({ value: this.coordenadasEntrada, disabled: false }, { nonNullable: true }),
+      lat: new FormControl({ value: this.coordenadasEntrada.lat, disabled: false }, { nonNullable: true }),
+      lng: new FormControl({ value: this.coordenadasEntrada.lng, disabled: false }, { nonNullable: true })
     });
   }
 
@@ -76,22 +83,32 @@ export class Muro implements OnInit {
   }
 
 
+onSubmit(): void {
+  if (this.miFormulario.valid) {
+    const nuevoReporte: Reporte = {
+      nombre: this.miFormulario.get('nombre')?.value,
+      servicio: this.miFormulario.get('servicio')?.value,
+      direccion: this.miFormulario.get('direccion')?.value,
+      lat:this.coordenadasEntrada.lat,
+      lng:this.coordenadasEntrada.lng    };
 
-  onSubmit(): void {
-    console.log('lista ', this.lista);
-    console.log('direccion form ', this.miFormulario.get('direccion')?.value);
-    console.log(this.miFormulario.value);
-
-    if (this.miFormulario.valid) {
-      console.log('✅ Formulario Válido. Datos a enviar:', this.miFormulario.value);
-      this.miFormulario.reset({
-        nombre: '',
-        servicio: '',
-        direccion: this.miFormulario.get('direccion')?.value,
-      });
-    } else {
-      console.log('❌ Formulario Inválido. Revise los campos.');
-      this.miFormulario.markAllAsTouched();
-    }
+    this.reporteService.addReporte(nuevoReporte).subscribe({
+      next: (res) => {
+        console.log('✅ Reporte guardado en db.json:', res);
+        this.miFormulario.reset({
+          nombre: '',
+          servicio: '',
+          direccion: this.miFormulario.get('direccion')?.value,
+          lat: this.coordenadasEntrada.lat,
+          lng: this.coordenadasEntrada.lng
+        });
+      },
+      error: (err) => console.error('❌ Error al guardar reporte:', err)
+    });
+  } else {
+    console.log('❌ Formulario Inválido. Revise los campos.');
+    this.miFormulario.markAllAsTouched();
   }
+}
+
 }
