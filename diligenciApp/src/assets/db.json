@@ -7,5 +7,13 @@
       "servicio": "as",
       "direccion": "Cra. 36 # 66G-41, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia"
     }
+  ],
+
+   "usuarios": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "1234"
+    }
   ]
 }

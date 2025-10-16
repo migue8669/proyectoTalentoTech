@@ -1,31 +1,47 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable, map } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
-  private tokenKey = 'auth_token';
+  private apiUrl = 'http://localhost:3000/usuarios';
+  private isAuthenticated = false;
 
-  constructor() {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-  login(username: string, password: string): boolean {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(this.tokenKey, 'tokenEjemplo');
-      return true;
-    }
-    return false;
+  /** 🔐 Iniciar sesión */
+  login(username: string, password: string): Observable<boolean> {
+    return this.http.get<any[]>(`${this.apiUrl}?username=${username}&password=${password}`)
+      .pipe(
+        map(users => {
+          if (users.length > 0) {
+            this.isAuthenticated = true;
+            localStorage.setItem('user', JSON.stringify(users[0]));
+            return true;
+          } else {
+            return false;
+          }
+        })
+      );
   }
 
-  logout(): void {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem(this.tokenKey);
-      window.location.href = '/login'; // Redirige al login
-    }
+  /** 🆕 Registrar usuario */
+  register(username: string, password: string): Observable<any> {
+    return this.http.post(this.apiUrl, { username, password });
   }
 
+  /** 🚪 Cerrar sesión */
+  logout() {
+    this.isAuthenticated = false;
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
+  }
+
+  /** ✅ Verificar sesión */
   isLoggedIn(): boolean {
-    if (typeof window === 'undefined') {
-      // 🔹 SSR (no hay localStorage)
-      return false;
-    }
-    return !!localStorage.getItem(this.tokenKey);
+    return !!localStorage.getItem('user');
   }
 }

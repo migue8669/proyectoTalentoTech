@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
 import { HttpClient } from '@angular/common/http';
-import { Coordenadas, LocationService } from '../services/locationService';
+import { Coordenadas, LocationService } from '../services/location.service';
 import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
 
@@ -83,6 +83,7 @@ export class Mapa implements OnInit {
 
       this.cdRef.detectChanges();
       console.log('✅ Ubicación:', pos);
+      console.warn('ubucacion ', pos);
     } catch (error: any) {
       this.errorGeoloc = 'Error al obtener ubicación: ' + error.message;
       console.error(this.errorGeoloc);

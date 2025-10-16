@@ -63,7 +63,7 @@ export class LocationService {
 
   getDireccion(lat: number, lng: number) {
     const url = `${this.baseUrl}?latlng=${lat},${lng}&key=${this.apiKey}&language=es`;
-    console.log("url ",url);
+    console.log("url getdireccion ",url);
 
     return this.http.get(url);
   }

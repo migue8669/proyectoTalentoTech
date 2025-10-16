@@ -1,4 +1,4 @@
-import { LocationService, Coordenadas } from '../services/locationService';
+import { LocationService, Coordenadas } from '../services/location.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -8,10 +8,11 @@ import {
   SimpleChanges,
   Inject,
   PLATFORM_ID,
+  OnChanges,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Reporte, ReporteService } from '../services/reporte';
+import { Reporte, ReporteService } from '../services/reporte.service';
 
 interface ReporteServicioDTO {
   nombre: FormControl<string>;
@@ -27,8 +28,9 @@ interface ReporteServicioDTO {
   templateUrl: './muro.html',
   styleUrl: './muro.css',
 })
-export class Muro implements OnInit {
-  @Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
+export class Muro implements OnInit, OnChanges {
+@Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
+
 
   direccion: string = 'Cargando dirección...';
   lista = new Array<Coordenadas>();
@@ -75,7 +77,7 @@ export class Muro implements OnInit {
     }
   }
 
-  onChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges en Muro detectado');
     console.log(changes);
 
@@ -85,25 +87,26 @@ export class Muro implements OnInit {
 
     console.log('coordenadasEntrada actualizadas:', this.coordenadasEntrada);
 
-    if (this.isBrowser) {
+  //  if (this.isBrowser) {
       this.locationService
         .getDireccion(this.coordenadasEntrada.lat, this.coordenadasEntrada.lng)
         .subscribe((res: any) => {
-          console.log('res ', res);
+          console.log('respuesta direccion ', res);
 
           this.direccion = res.results[1].formatted_address;
           console.log('📍 Dirección:', this.direccion);
           this.miFormulario.get('direccion')?.setValue(this.direccion);
         });
-    }
+  //  }
   }
 
   onSubmit(): void {
     if (this.miFormulario.valid) {
+  
       const nuevoReporte: Reporte = {
         nombre: this.miFormulario.get('nombre')?.value,
         servicio: this.miFormulario.get('servicio')?.value,
-        direccion: this.miFormulario.get('direccion')?.value,
+        direccion: this.direccion,
         lat: this.coordenadasEntrada.lat,
         lng: this.coordenadasEntrada.lng,
       };
@@ -114,7 +117,7 @@ export class Muro implements OnInit {
           this.miFormulario.reset({
             nombre: '',
             servicio: '',
-            direccion: this.miFormulario.get('direccion')?.value,
+            direccion: this.direccion,
             lat: this.coordenadasEntrada.lat,
             lng: this.coordenadasEntrada.lng,
           });
