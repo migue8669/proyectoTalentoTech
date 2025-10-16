@@ -1,47 +1,91 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Observable, of, map } from 'rxjs';
 import { Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private apiUrl = 'http://localhost:3000/usuarios';
-  private isAuthenticated = false;
+  private currentUser: { id: number; username: string } | null = null;
+  private isBrowser: boolean;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+
+    // Solo acceder a localStorage si estamos en el navegador
+    if (this.isBrowser) {
+      const userData = localStorage.getItem('user');
+      this.currentUser = userData ? JSON.parse(userData) : null;
+    }
+  }
 
   /** 🔐 Iniciar sesión */
   login(username: string, password: string): Observable<boolean> {
-    return this.http.get<any[]>(`${this.apiUrl}?username=${username}&password=${password}`)
-      .pipe(
-        map(users => {
-          if (users.length > 0) {
-            this.isAuthenticated = true;
-            localStorage.setItem('user', JSON.stringify(users[0]));
-            return true;
-          } else {
-            return false;
+    return this.http.get<any[]>(`${this.apiUrl}?username=${username}&password=${password}`).pipe(
+      map(users => {
+        if (users.length > 0) {
+          this.currentUser = { id: users[0].id, username: users[0].username };
+
+          // Guardar sesión solo en el navegador
+          if (this.isBrowser) {
+            localStorage.setItem('user', JSON.stringify(this.currentUser));
           }
-        })
-      );
+          return true;
+        }
+        return false;
+      })
+    );
   }
 
   /** 🆕 Registrar usuario */
   register(username: string, password: string): Observable<any> {
-    return this.http.post(this.apiUrl, { username, password });
+    if (!username || !password) {
+      return of({ error: 'El usuario y la contraseña son obligatorios.' });
+    }
+    const newUser = { username, password };
+    return this.http.post(this.apiUrl, newUser);
   }
 
   /** 🚪 Cerrar sesión */
   logout() {
-    this.isAuthenticated = false;
-    localStorage.removeItem('user');
+    this.currentUser = null;
+
+    if (this.isBrowser) {
+      localStorage.removeItem('user');
+    }
+
     this.router.navigate(['/login']);
   }
 
-  /** ✅ Verificar sesión */
+  /** ✅ Verificar sesión activa */
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('user');
+    if (this.currentUser) return true;
+
+    if (this.isBrowser) {
+      const data = localStorage.getItem('user');
+      this.currentUser = data ? JSON.parse(data) : null;
+      return !!this.currentUser;
+    }
+
+    return false;
+  }
+
+  /** 👤 Obtener usuario actual */
+  getCurrentUser(): { id: number; username: string } | null {
+    if (this.currentUser) return this.currentUser;
+
+    if (this.isBrowser) {
+      const data = localStorage.getItem('user');
+      this.currentUser = data ? JSON.parse(data) : null;
+    }
+
+    return this.currentUser;
   }
 }

@@ -9,6 +9,7 @@ export interface Reporte {
   direccion?: string;
   lat?: number;
   lng?: number;
+  usuario?: string;
 }
 
 @Injectable({

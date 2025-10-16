@@ -13,6 +13,7 @@ import {
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Reporte, ReporteService } from '../services/reporte.service';
+import { AuthService } from '../services/auth.service';
 
 interface ReporteServicioDTO {
   nombre: FormControl<string>;
@@ -20,6 +21,7 @@ interface ReporteServicioDTO {
   direccion?: FormControl<Coordenadas | undefined>;
   lat: FormControl<number | undefined>;
   lng: FormControl<number | undefined>;
+  usuario: FormControl<string>;
 }
 
 @Component({
@@ -37,12 +39,14 @@ export class Muro implements OnInit, OnChanges {
   geocoder?: google.maps.Geocoder; // ← Ya no lo inicializamos directamente
   miFormulario: FormGroup;
   isBrowser: boolean = false;
+  currentUser: { id: number; username: string } | null = null; // ✅ usuario activo
 
   constructor(
     private locationService: LocationService,
     private cdRef: ChangeDetectorRef,
     private http: HttpClient,
     private reporteService: ReporteService, // ← nuevo
+    private authService: AuthService, // ✅ Inyectar AuthService
 
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
@@ -65,13 +69,23 @@ export class Muro implements OnInit, OnChanges {
         { value: this.coordenadasEntrada.lng, disabled: false },
         { nonNullable: true }
       ),
+      usuario: new FormControl('', { nonNullable: true }), // ← nuevo
     });
   }
 
   ngOnInit(): void {
     if (this.isBrowser) {
-      // ✅ Solo creamos el geocoder en el navegador
       this.geocoder = new google.maps.Geocoder();
+
+      // ✅ Obtener usuario autenticado desde AuthService
+      this.currentUser = this.authService.getCurrentUser();
+      if (this.currentUser) {
+        console.log('👤 Usuario autenticado:', this.currentUser.username);
+        this.miFormulario.get('usuario')?.setValue(this.currentUser.username);
+      } else {
+        console.warn('⚠️ No hay usuario autenticado.');
+        this.miFormulario.get('usuario')?.setValue('desconocido');
+      }
     } else {
       console.log('⛔ SSR detectado: no se inicializa google.maps');
     }
@@ -109,6 +123,7 @@ export class Muro implements OnInit, OnChanges {
         direccion: this.direccion,
         lat: this.coordenadasEntrada.lat,
         lng: this.coordenadasEntrada.lng,
+        usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
       };
 
       this.reporteService.addReporte(nuevoReporte).subscribe({
@@ -120,6 +135,7 @@ export class Muro implements OnInit, OnChanges {
             direccion: this.direccion,
             lat: this.coordenadasEntrada.lat,
             lng: this.coordenadasEntrada.lng,
+            usuario: '',
           });
         },
         error: (err) => console.error('❌ Error al guardar reporte:', err),

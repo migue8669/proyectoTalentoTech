@@ -1,18 +1,44 @@
 {
   "reportes": [
-
     {
       "id": "2843",
       "nombre": "as",
       "servicio": "as",
       "direccion": "Cra. 36 # 66G-41, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia"
+    },
+    {
+      "id": "75d6",
+      "lat": 6.2616807092597435,
+      "lng": -75.54815085888045,
+      "title": "pruebaAdmin",
+      "servicio": "prueba 1",
+      "direccion": "Cra. 36 # 66G-53, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "usuario": "admin"
+    },
+    {
+      "id": "61bd",
+      "nombre": "pruebaRoot",
+      "servicio": "prueba",
+      "direccion": "Cra 36 A #32, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "lat": 6.261538183773525,
+      "lng": -75.5481348124308,
+      "usuario": "root"
     }
   ],
-
-   "usuarios": [
+  "usuarios": [
     {
-      "id": 1,
+      "id": "1",
       "username": "admin",
+      "password": "1234"
+    },
+    {
+      "id": "de9f",
+      "username": "root",
+      "password": "root"
+    },
+    {
+      "id": "f1fc",
+      "username": "pruebaUser",
       "password": "1234"
     }
   ]
