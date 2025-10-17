@@ -19,16 +19,41 @@
       class="form-textarea"
       [class.input-error]="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched"
     ></textarea>
-
-    <div *ngIf="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched">
-      <p *ngIf="miFormulario.get('servicio')?.errors?.['required']" class="error-message">
-        El servicio requerido es obligatorio.
-      </p>
-    </div>
   </div>
-<div>{{lista ? lista : 'Sin mensaje'}}</div>
 
-<button type="submit" [disabled]="miFormulario.invalid" class="submit-button">
+  <div *ngIf="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched">
+    <p *ngIf="miFormulario.get('servicio')?.errors?.['required']" class="error-message">
+      El servicio requerido es obligatorio.
+    </p>
+  </div>
+
+  <div class="form-group">
+    <label for="precio" class="form-label">Precio:</label>
+    <input
+      id="precio"
+      type="number"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      formControlName="precio"
+      class="form-input"
+      [class.input-error]="miFormulario.get('precio')?.invalid && miFormulario.get('precio')?.touched"
+    >
+  </div>
+
+  <div class="form-group">
+    <label for="telefono" class="form-label">Teléfono o WhatsApp:</label>
+    <input
+      id="telefono"
+      type="number"
+      inputmode="numeric"
+      pattern="[0-9]*"
+      formControlName="telefono"
+      class="form-input"
+      [class.input-error]="miFormulario.get('telefono')?.invalid && miFormulario.get('telefono')?.touched"
+    >
+  </div>
+
+  <button type="submit" [disabled]="miFormulario.invalid" class="submit-button">
     Enviar
   </button>
 

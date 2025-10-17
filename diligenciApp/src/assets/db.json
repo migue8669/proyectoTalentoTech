@@ -1,28 +1,26 @@
 {
   "reportes": [
     {
-      "id": "2843",
-      "nombre": "as",
-      "servicio": "as",
-      "direccion": "Cra. 36 # 66G-41, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia"
-    },
-    {
-      "id": "75d6",
-      "lat": 6.2616807092597435,
-      "lng": -75.54815085888045,
-      "title": "pruebaAdmin",
-      "servicio": "prueba 1",
-      "direccion": "Cra. 36 # 66G-53, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
+      "id": "b731",
+      "title": "prueba dir",
+      "servicio": "prueba dir",
+      "direccion": "Cra.36A con Cll 66G, Manrique Oriental, Manrique, Medellín, Antioquia, Colombia",
+      "telefono": "",
+      "precio": "",
+      "lat": 6.261309483532035,
+      "lng": -75.54814953539793,
       "usuario": "admin"
     },
     {
-      "id": "61bd",
-      "nombre": "pruebaRoot",
-      "servicio": "prueba",
-      "direccion": "Cra 36 A #32, Manrique Oriental, Medellín, Manrique, Medellín, Antioquia, Colombia",
-      "lat": 6.261538183773525,
-      "lng": -75.5481348124308,
-      "usuario": "root"
+      "id": "211b",
+      "title": "prueba direccion",
+      "servicio": "prueba dir",
+      "direccion": "Cra.36A con Cll 66G, Manrique Oriental, Manrique, Medellín, Antioquia, Colombia",
+      "telefono": "",
+      "precio": "",
+      "lat": 6.261309483532035,
+      "lng": -75.54814953539793,
+      "usuario": "admin"
     }
   ],
   "usuarios": [

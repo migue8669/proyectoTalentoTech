@@ -1,9 +1,10 @@
 <div class="map-container">
-  <div class="header">
-    <h1>🌍 DiligenciApp</h1>
-    <p>Diligencias y Servicios</p>
-    <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
-  </div>
+<div class="header">
+  <h1>🌍 DiligenciApp</h1>
+  <p>Diligencias y Servicios</p>
+  <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+  <button class="refresh-btn" (click)="loadMarkersFromJson()">🔄 </button>
+</div>
 
   <google-map
     height="450px"
@@ -13,30 +14,34 @@
     [zoom]="zoom"
     class="google-map"
   >
-    @for (marker of markerPositions; track marker) {
-      <map-marker
-        #markerElem="mapMarker"
-        [position]="{ lat: marker.lat, lng: marker.lng }"
-        [title]="marker.title"
-        (mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
-      ></map-marker>
+  <map-marker
+    *ngFor="let marker of markerPositions; trackBy: trackByMarkerId"
+    #markerElem="mapMarker"
+    [position]="{ lat: marker.lat, lng: marker.lng }"
+    [title]="marker.title"
+    (mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
+  ></map-marker>
 
-      <map-info-window #infoWindow="mapInfoWindow">
-        <div class="info-window">
-          <strong>{{ marker.title }}</strong><br />
-          <span>{{ marker.servicio }}</span><br />
-          <small>{{ marker.direccion }}</small>
-
-          <div class="marker-actions">
-            <button class="btn-edit" (click)="editMarker(marker)">✏️ Editar</button>
-            <button class="btn-delete" (click)="deleteMarker(marker)">🗑️ Eliminar</button>
-          </div>
-        </div>
-      </map-info-window>
-    }
+  <map-info-window #infoWindow="mapInfoWindow">
+    <div class="info-window" *ngIf="selectedMarker">
+      <strong>{{ selectedMarker.title }}</strong><br />
+      <span>{{ selectedMarker.servicio }}</span><br />
+      <small>{{ selectedMarker.direccion }}</small>
+      <div class="marker-actions">
+        <button class="btn-edit" (click)="editMarker(selectedMarker)">✏️ Editar</button>
+        <button class="btn-delete" (click)="deleteMarker(selectedMarker)">🗑️ Eliminar</button>
+      </div>
+    </div>
+  </map-info-window>
   </google-map>
 
   <div class="muro-container">
-    <app-muro [coordenadasEntrada]="newLocationData"></app-muro>
+<app-muro
+  [coordenadasEntrada]="newLocationData"
+  [marker]="markerBeingEdited"
+  (markerUpdated)="onMarkerUpdated($event)">
+
+</app-muro>
+
   </div>
 </div>

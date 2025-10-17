@@ -64,7 +64,8 @@ export class LocationService {
   getDireccion(lat: number, lng: number) {
     const url = `${this.baseUrl}?latlng=${lat},${lng}&key=${this.apiKey}&language=es`;
     console.log("url getdireccion ",url);
-
+    console.log('🔹 Geocoding URL:', url);
     return this.http.get(url);
+
   }
 }

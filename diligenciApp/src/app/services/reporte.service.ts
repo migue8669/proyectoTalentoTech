@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Reporte {
-  id?: number;
-  nombre: string;
-  servicio: string;
+  id?:  number;
+  title: string;
+  servicio?: string;
   direccion?: string;
-  lat?: number;
-  lng?: number;
+  telefono?: string;
+  precio?: string;
+  lat: number;
+  lng: number;
   usuario?: string;
 }
 

@@ -1,4 +1,5 @@
 import { LocationService, Coordenadas } from '../services/location.service';
+import { CustomMarker } from '../mapa/mapa';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -9,6 +10,8 @@ import {
   Inject,
   PLATFORM_ID,
   OnChanges,
+  EventEmitter,
+  Output,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -18,7 +21,9 @@ import { AuthService } from '../services/auth.service';
 interface ReporteServicioDTO {
   nombre: FormControl<string>;
   servicio: FormControl<string>;
-  direccion?: FormControl<Coordenadas | undefined>;
+  direccion?: FormControl<string | undefined>;
+  telefono?: FormControl<string | undefined>;
+  precio?: FormControl<string | undefined>;
   lat: FormControl<number | undefined>;
   lng: FormControl<number | undefined>;
   usuario: FormControl<string>;
@@ -31,8 +36,16 @@ interface ReporteServicioDTO {
   styleUrl: './muro.css',
 })
 export class Muro implements OnInit, OnChanges {
-@Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
-
+  @Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
+  @Input() marker: CustomMarker = {
+    title: '',
+    lat: 0,
+    lng: 0,
+    servicio: '',
+    precio: '',
+    telefono: '',
+  }; // ← nuevo
+  @Output() markerUpdated: EventEmitter<Reporte> = new EventEmitter<Reporte>();
 
   direccion: string = 'Cargando dirección...';
   lista = new Array<Coordenadas>();
@@ -57,10 +70,7 @@ export class Muro implements OnInit, OnChanges {
     this.miFormulario = new FormGroup<ReporteServicioDTO>({
       nombre: new FormControl('', { validators: Validators.required, nonNullable: true }),
       servicio: new FormControl('', { validators: Validators.required, nonNullable: true }),
-      direccion: new FormControl(
-        { value: this.coordenadasEntrada, disabled: false },
-        { nonNullable: true }
-      ),
+      direccion: new FormControl('', { nonNullable: true }),
       lat: new FormControl(
         { value: this.coordenadasEntrada.lat, disabled: false },
         { nonNullable: true }
@@ -69,80 +79,167 @@ export class Muro implements OnInit, OnChanges {
         { value: this.coordenadasEntrada.lng, disabled: false },
         { nonNullable: true }
       ),
+      precio: new FormControl('', { nonNullable: true }), // ← nuevo
+      telefono: new FormControl('', { nonNullable: true }), // ← nuevo
       usuario: new FormControl('', { nonNullable: true }), // ← nuevo
     });
   }
 
   ngOnInit(): void {
-    if (this.isBrowser) {
-      this.geocoder = new google.maps.Geocoder();
+    //if (this.isBrowser) {
+    this.geocoder = new google.maps.Geocoder();
 
-      // ✅ Obtener usuario autenticado desde AuthService
-      this.currentUser = this.authService.getCurrentUser();
-      if (this.currentUser) {
-        console.log('👤 Usuario autenticado:', this.currentUser.username);
-        this.miFormulario.get('usuario')?.setValue(this.currentUser.username);
-      } else {
-        console.warn('⚠️ No hay usuario autenticado.');
-        this.miFormulario.get('usuario')?.setValue('desconocido');
+    // ✅ Obtener usuario autenticado desde AuthService
+    this.currentUser = this.authService.getCurrentUser();
+    if (this.currentUser) {
+      console.log('👤 Usuario autenticado:', this.currentUser.username);
+      this.miFormulario.get('usuario')?.setValue(this.currentUser.username);
+    } else {
+      console.warn('⚠️ No hay usuario autenticado.');
+      this.miFormulario.get('usuario')?.setValue('desconocido');
+    }
+    //   else {
+    //   console.log('⛔ SSR detectado: no se inicializa google.maps');
+    //}
+  }
+   ngOnChanges(changes: SimpleChanges): void {
+  if (changes['marker'] && changes['marker'].currentValue) {
+    const m = changes['marker'].currentValue as Reporte;
+
+    this.miFormulario.patchValue({
+      nombre: m.title || '',
+      servicio: m.servicio || '',
+      telefono: m.telefono || '',
+      precio: m.precio || '',
+      direccion: m.direccion ,
+      lat: m.lat || 0,
+      lng: m.lng || 0,
+      usuario: m.usuario || this.currentUser?.username || 'desconocido'
+    });
+
+    if ((!m.direccion || m.direccion.trim() === '') && m.lat && m.lng) {
+      this.direccion = 'Cargando dirección...';
+      this.miFormulario.get('direccion')?.setValue(this.direccion);
+       console.log("m.lat ",m.lat);
+
+      // Llamamos a función async separada
+      this.loadDireccion(m.lat, m.lng);
+    } else if (m.direccion) {
+      this.direccion = m.direccion;
+      this.miFormulario.get('direccion')?.setValue(this.direccion);
+    }
+  }
+
+  if (changes['coordenadasEntrada'] && changes['coordenadasEntrada'].currentValue) {
+    const coords = changes['coordenadasEntrada'].currentValue as Coordenadas;
+    this.miFormulario.get('lat')?.setValue(coords.lat);
+    this.miFormulario.get('lng')?.setValue(coords.lng);
+  }
+}
+
+// Función async separada
+private async loadDireccion(lat: number, lng: number) {
+  try {
+    const direccion = await this.geocodeLatLng(lat, lng);
+    this.direccion = direccion;
+    this.miFormulario.get('direccion')?.setValue(direccion);
+    this.cdRef.detectChanges();
+    console.log('📍 Dirección obtenida por geocoding:', direccion);
+  } catch (err) {
+    console.error('❌ Error al obtener dirección:', err);
+    this.direccion = 'Dirección no disponible';
+    this.miFormulario.get('direccion')?.setValue(this.direccion);
+    this.cdRef.detectChanges();
+  }
+}
+
+
+  private geocodeLatLng(lat: number, lng: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.geocoder) {
+        return reject('Geocoder no inicializado');
       }
-    } else {
-      console.log('⛔ SSR detectado: no se inicializa google.maps');
-    }
-  }
+        console.log("lat geocodelatlng ",lat);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges en Muro detectado');
-    console.log(changes);
-
-    this.coordenadasEntrada = changes['coordenadasEntrada']
-      ? changes['coordenadasEntrada'].currentValue
-      : this.coordenadasEntrada;
-
-    console.log('coordenadasEntrada actualizadas:', this.coordenadasEntrada);
-
-  //  if (this.isBrowser) {
-      this.locationService
-        .getDireccion(this.coordenadasEntrada.lat, this.coordenadasEntrada.lng)
-        .subscribe((res: any) => {
-          console.log('respuesta direccion ', res);
-
-          this.direccion = res.results[1].formatted_address;
-          console.log('📍 Dirección:', this.direccion);
-          this.miFormulario.get('direccion')?.setValue(this.direccion);
-        });
-  //  }
-  }
-
-  onSubmit(): void {
-    if (this.miFormulario.valid) {
-  
-      const nuevoReporte: Reporte = {
-        nombre: this.miFormulario.get('nombre')?.value,
-        servicio: this.miFormulario.get('servicio')?.value,
-        direccion: this.direccion,
-        lat: this.coordenadasEntrada.lat,
-        lng: this.coordenadasEntrada.lng,
-        usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
-      };
-
-      this.reporteService.addReporte(nuevoReporte).subscribe({
-        next: (res) => {
-          console.log('✅ Reporte guardado en db.json:', res);
-          this.miFormulario.reset({
-            nombre: '',
-            servicio: '',
-            direccion: this.direccion,
-            lat: this.coordenadasEntrada.lat,
-            lng: this.coordenadasEntrada.lng,
-            usuario: '',
-          });
-        },
-        error: (err) => console.error('❌ Error al guardar reporte:', err),
+      this.geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results && results.length > 0) {
+          resolve(results[0].formatted_address);
+        } else {
+          resolve('Dirección no disponible');
+        }
       });
-    } else {
-      console.log('❌ Formulario Inválido. Revise los campos.');
-      this.miFormulario.markAllAsTouched();
-    }
+    });
+  }
+
+onSubmit(): void {
+  if (!this.miFormulario.valid) {
+    console.log('❌ Formulario Inválido. Revise los campos.');
+    this.miFormulario.markAllAsTouched();
+    return;
+  }
+
+  if (this.geocoder) {
+    this.geocoder.geocode(
+      { location: { lat: this.coordenadasEntrada.lat, lng: this.coordenadasEntrada.lng } },
+      (results, status) => {
+        if (status === 'OK' && results && results.length > 0) {
+          this.direccion = results[0].formatted_address;
+        } else {
+          this.direccion = 'Dirección no disponible';
+        }
+
+        // Actualizar el formulario
+        this.miFormulario.get('direccion')?.setValue(this.direccion);
+        this.cdRef.detectChanges();
+
+        // Crear y guardar el reporte **dentro del callback**
+        const nuevoReporte: Reporte = {
+          title: this.miFormulario.get('nombre')?.value,
+          servicio: this.miFormulario.get('servicio')?.value,
+          direccion: this.direccion,
+          telefono: this.miFormulario.get('telefono')?.value || '',
+          precio: this.miFormulario.get('precio')?.value || '',
+          lat: this.coordenadasEntrada.lat,
+          lng: this.coordenadasEntrada.lng,
+          usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
+        };
+
+        this.reporteService.addReporte(nuevoReporte).subscribe({
+          next: (res) => {
+            console.log('✅ Reporte guardado en db.json:', res);
+            this.miFormulario.reset({
+              nombre: '',
+              servicio: '',
+              direccion: '',
+              telefono: '',
+              precio: '',
+              lat: this.coordenadasEntrada.lat,
+              lng: this.coordenadasEntrada.lng,
+              usuario: '',
+            });
+          },
+          error: (err) => console.error('❌ Error al guardar reporte:', err),
+        });
+
+        this.markerUpdated.emit(nuevoReporte);
+      }
+    );
+  } else {
+    // Si no hay geocoder disponible (SSR)
+    this.direccion = 'Dirección no disponible';
+    this.miFormulario.get('direccion')?.setValue(this.direccion);
+    this.cdRef.detectChanges();
+  }
+}
+
+  updateMarker() {
+    if (!this.marker) return;
+
+    // aquí actualizas los campos del marcador desde tu formulario
+    const updated: Reporte = {
+      ...this.marker,
+      id: Number(this.marker.id), // 🔹 fuerza a number
+    };
+    this.markerUpdated.emit(updated);
   }
 }

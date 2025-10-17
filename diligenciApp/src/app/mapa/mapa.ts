@@ -1,21 +1,20 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
 import { HttpClient } from '@angular/common/http';
 import { Coordenadas, LocationService } from '../services/location.service';
 import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
+import { Reporte } from '../services/reporte.service';
 
 // 🔹 Tipo personalizado de marcador
-interface CustomMarker extends google.maps.LatLngLiteral {
+export interface CustomMarker extends google.maps.LatLngLiteral {
   id?: string | number;
   title: string;
   servicio?: string;
   direccion?: string;
+  telefono?: string;
+  precio?: string;
   usuario?: string; // ✅ nuevo campo: quién lo creó
 }
 
@@ -28,15 +27,25 @@ interface CustomMarker extends google.maps.LatLngLiteral {
 })
 export class Mapa implements OnInit {
   newLocationData: Coordenadas = { lat: 40.7128, lng: -74.006 };
+  markerBeingEdited: Reporte = {
+    lat: 0,
+    lng: 0,
+    title: '',
+    servicio: '',
+    precio: '',
+    telefono: '',
+  }; // ← nuevo
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow; // referencia global
+
   isLoading = false;
   errorGeoloc: string | null = null;
-  selectedMarker: CustomMarker | null = null;
+  selectedMarker: Reporte | null = null;
   currentUser: any = null; // ✅ usuario logueado
 
   center: google.maps.LatLngLiteral = { lat: 40.7128, lng: -74.006 };
   zoom = 12;
 
-  markerPositions: CustomMarker[] = [];
+  markerPositions: Reporte[] = [];
   private apiUrl = 'http://localhost:3000/reportes';
 
   mapOptions: google.maps.MapOptions = {
@@ -82,7 +91,9 @@ export class Mapa implements OnInit {
         title: 'Mi ubicación actual',
         servicio: 'Ubicación personal',
         direccion: 'Detectada por el navegador',
-        usuario: this.currentUser?.username || 'sistema'
+        telefono: '',
+        precio: '',
+        usuario: this.currentUser?.username || 'sistema',
       });
 
       this.cdRef.detectChanges();
@@ -93,10 +104,20 @@ export class Mapa implements OnInit {
       this.isLoading = false;
     }
   }
-
+  ngOnChanges(changes: SimpleChanges): void {
+    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
+    //Add '${implements OnChanges}' to the class.
+    if (changes['markerBeingEdited'] && this.markerBeingEdited) {
+      console.log('📍 Marcador a editar:', this.markerBeingEdited);
+      // Aquí podrías abrir un formulario o modal para editar el marcador
+    }
+  }
+  trackByMarkerId(index: number, marker: Reporte) {
+    return marker.id;
+  }
   /** 🔹 Carga los marcadores */
   loadMarkersFromJson() {
-    this.http.get<CustomMarker[]>(this.apiUrl).subscribe({
+    this.http.get<Reporte[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.markerPositions = data.map((m) => ({
           id: m.id,
@@ -105,48 +126,63 @@ export class Mapa implements OnInit {
           title: m.title || (m as any).nombre || 'Punto sin nombre',
           servicio: m.servicio,
           direccion: m.direccion,
-          usuario: (m as any).usuario || 'desconocido' // ✅ mantener autor
+          telefono: m.telefono,
+          precio: m.precio,
+          usuario: (m as any).usuario || 'desconocido', // ✅ mantener autor
         }));
         this.cdRef.detectChanges();
+
       },
       error: (err) => console.error('⚠️ Error al cargar marcadores:', err),
     });
   }
 
   /** 🪟 Abre ventana info */
-  openInfoWindow(markerData: CustomMarker, markerRef: MapMarker, infoWindow: MapInfoWindow) {
+  openInfoWindow(markerData: Reporte, markerRef: MapMarker, infoWindow: MapInfoWindow) {
     this.selectedMarker = markerData;
     infoWindow.open(markerRef);
   }
 
-  /** ✏️ Editar marcador (solo si es del usuario actual) */
-  editMarker(marker: CustomMarker) {
-          console.log("edit marker ",marker.usuario,this.currentUser?.username);
 
+  /** ✏️ Editar marcador (solo si es del usuario actual) */
+  editMarker(marker: Reporte) {
     if (marker.usuario !== this.currentUser?.username) {
-      
       alert('❌ No puedes editar marcadores de otros usuarios.');
       return;
     }
+    this.infoWindow?.close();
 
-    const nuevoTitulo = prompt('Nuevo nombre para este marcador:', marker.title);
-    if (!nuevoTitulo) return;
+    // 🔹 Enviar el marcador al muro para que pinte sus datos en el formulario
+    this.markerBeingEdited = { ...marker };
+    this.cdRef.detectChanges();
+  }
+  onMarkerUpdated(updated: Reporte) {
+    console.log('📍 Marcador actualizado desde Muro:', updated);
 
-    const updatedMarker = { ...marker, title: nuevoTitulo };
+    // 1️⃣ Buscamos el índice del marcador actualizado
+    const index = this.markerPositions.findIndex((m) => m.id === updated.id);
 
-    this.http.put(`${this.apiUrl}/${marker.id}`, updatedMarker).subscribe({
-      next: () => {
-        const index = this.markerPositions.findIndex((m) => m.id === marker.id);
-        if (index > -1) this.markerPositions[index] = updatedMarker;
-        this.cdRef.detectChanges();
-        alert('✅ Marcador actualizado.');
-      },
-      error: (err) => console.error('❌ Error al actualizar marcador:', err),
-    });
+    if (index > -1) {
+      // 2️⃣ Actualizamos el objeto en el array
+      this.markerPositions[index] = { ...updated };
+
+      // 3️⃣ Reasignamos el array completo para forzar re-render
+      this.markerPositions = [...this.markerPositions];
+
+      // 4️⃣ Si el marcador editado es el que está seleccionado, actualízalo también
+      if (this.selectedMarker?.id === updated.id) {
+        this.selectedMarker = { ...updated };
+      }
+
+      // 5️⃣ Detectamos cambios
+      this.cdRef.detectChanges();
+
+      alert('✅ Información del marcador actualizada en el mapa');
+    }
   }
 
   /** 🗑️ Eliminar marcador (solo si es del usuario actual) */
-  deleteMarker(marker: CustomMarker) {
+  deleteMarker(marker: Reporte) {
     if (!marker.id) return;
 
     if (marker.usuario !== this.currentUser?.username) {
@@ -155,6 +191,8 @@ export class Mapa implements OnInit {
     }
 
     if (confirm(`¿Seguro que quieres eliminar "${marker.title}"?`)) {
+      this.infoWindow?.close();
+
       this.http.delete(`${this.apiUrl}/${marker.id}`).subscribe({
         next: () => {
           this.markerPositions = this.markerPositions.filter((m) => m.id !== marker.id);
