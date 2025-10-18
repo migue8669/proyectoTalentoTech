@@ -1,5 +1,4 @@
 import { LocationService, Coordenadas } from '../services/location.service';
-import { CustomMarker } from '../mapa/mapa';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -19,7 +18,7 @@ import { Reporte, ReporteService } from '../services/reporte.service';
 import { AuthService } from '../services/auth.service';
 
 interface ReporteServicioDTO {
-  nombre: FormControl<string>;
+  titulo: FormControl<string>;
   servicio: FormControl<string>;
   direccion?: FormControl<string | undefined>;
   telefono?: FormControl<string | undefined>;
@@ -37,8 +36,8 @@ interface ReporteServicioDTO {
 })
 export class Muro implements OnInit, OnChanges {
   @Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
-  @Input() marker: CustomMarker = {
-    title: '',
+  @Input() marker: Reporte = {
+    titulo: '',
     lat: 0,
     lng: 0,
     servicio: '',
@@ -46,6 +45,7 @@ export class Muro implements OnInit, OnChanges {
     telefono: '',
   }; // ← nuevo
   @Output() markerUpdated: EventEmitter<Reporte> = new EventEmitter<Reporte>();
+  @Output() mostrarMapaEvent = new EventEmitter<void>(); // avisa que se debe mostrar mapa
 
   direccion: string = 'Cargando dirección...';
   lista = new Array<Coordenadas>();
@@ -53,11 +53,10 @@ export class Muro implements OnInit, OnChanges {
   miFormulario: FormGroup;
   isBrowser: boolean = false;
   currentUser: { id: number; username: string } | null = null; // ✅ usuario activo
+  mostrarMapa = false;
 
   constructor(
-    private locationService: LocationService,
     private cdRef: ChangeDetectorRef,
-    private http: HttpClient,
     private reporteService: ReporteService, // ← nuevo
     private authService: AuthService, // ✅ Inyectar AuthService
 
@@ -68,7 +67,7 @@ export class Muro implements OnInit, OnChanges {
 
     // Inicializamos el formulario
     this.miFormulario = new FormGroup<ReporteServicioDTO>({
-      nombre: new FormControl('', { validators: Validators.required, nonNullable: true }),
+      titulo: new FormControl('', { validators: Validators.required, nonNullable: true }),
       servicio: new FormControl('', { validators: Validators.required, nonNullable: true }),
       direccion: new FormControl('', { nonNullable: true }),
       lat: new FormControl(
@@ -98,16 +97,14 @@ export class Muro implements OnInit, OnChanges {
       console.warn('⚠️ No hay usuario autenticado.');
       this.miFormulario.get('usuario')?.setValue('desconocido');
     }
-    //   else {
-    //   console.log('⛔ SSR detectado: no se inicializa google.maps');
-    //}
+
   }
    ngOnChanges(changes: SimpleChanges): void {
   if (changes['marker'] && changes['marker'].currentValue) {
     const m = changes['marker'].currentValue as Reporte;
 
     this.miFormulario.patchValue({
-      nombre: m.title || '',
+      titulo: m.titulo || '',
       servicio: m.servicio || '',
       telefono: m.telefono || '',
       precio: m.precio || '',
@@ -170,6 +167,9 @@ private async loadDireccion(lat: number, lng: number) {
       });
     });
   }
+    toggleVista() {
+    this.mostrarMapa = !this.mostrarMapa;
+  }
 
 onSubmit(): void {
   if (!this.miFormulario.valid) {
@@ -194,7 +194,7 @@ onSubmit(): void {
 
         // Crear y guardar el reporte **dentro del callback**
         const nuevoReporte: Reporte = {
-          title: this.miFormulario.get('nombre')?.value,
+          titulo: this.miFormulario.get('titulo')?.value,
           servicio: this.miFormulario.get('servicio')?.value,
           direccion: this.direccion,
           telefono: this.miFormulario.get('telefono')?.value || '',
@@ -208,7 +208,7 @@ onSubmit(): void {
           next: (res) => {
             console.log('✅ Reporte guardado en db.json:', res);
             this.miFormulario.reset({
-              nombre: '',
+              titulo: '',
               servicio: '',
               direccion: '',
               telefono: '',
@@ -230,6 +230,8 @@ onSubmit(): void {
     this.miFormulario.get('direccion')?.setValue(this.direccion);
     this.cdRef.detectChanges();
   }
+this.mostrarMapaEvent.emit();
+
 }
 
   updateMarker() {
@@ -241,5 +243,6 @@ onSubmit(): void {
       id: Number(this.marker.id), // 🔹 fuerza a number
     };
     this.markerUpdated.emit(updated);
+    this.mostrarMapaEvent.emit();
   }
 }

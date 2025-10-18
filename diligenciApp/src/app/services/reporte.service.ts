@@ -4,13 +4,23 @@ import { Observable } from 'rxjs';
 
 export interface Reporte {
   id?:  number;
-  title: string;
+  titulo: string;
   servicio?: string;
   direccion?: string;
   telefono?: string;
   precio?: string;
   lat: number;
   lng: number;
+  usuario?: string;
+}
+
+export interface ReporteEdit {
+  id?:  number;
+  titulo: string;
+  servicio?: string;
+  direccion?: string;
+  telefono?: string;
+  precio?: string;
   usuario?: string;
 }
 

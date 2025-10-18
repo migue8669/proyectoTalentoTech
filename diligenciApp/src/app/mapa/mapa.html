@@ -1,47 +1,51 @@
 <div class="map-container">
-<div class="header">
-  <h1>🌍 DiligenciApp</h1>
-  <p>Diligencias y Servicios</p>
-  <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
-  <button class="refresh-btn" (click)="loadMarkersFromJson()">🔄 </button>
-</div>
+  <div class="header">
+    <h1>🌍 DiligenciApp</h1>
+    <p>Diligencias y Servicios</p>
+    <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    <button class="refresh-btn" (click)="loadMarkersFromJson()">🔄 </button>
+    <button class="toggle-btn" (click)="toggleVista">
+      {{ mostrarMuro ? '🗺️ Ver mapa' : '🧱 Ver muro' }}
+    </button>
+  </div>
 
   <google-map
+    *ngIf="mostrarMapa"
     height="450px"
     width="100%"
     [options]="mapOptions"
     [center]="center"
     [zoom]="zoom"
-    class="google-map"
   >
-  <map-marker
-    *ngFor="let marker of markerPositions; trackBy: trackByMarkerId"
-    #markerElem="mapMarker"
-    [position]="{ lat: marker.lat, lng: marker.lng }"
-    [title]="marker.title"
-    (mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
-  ></map-marker>
+    <map-marker
+      *ngFor="let marker of markerPositions; trackBy: trackByMarkerId"
+      #markerElem="mapMarker"
+      [position]="{ lat: marker.lat, lng: marker.lng }"
+      [title]="marker.titulo"
+      (mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
+    ></map-marker>
 
-  <map-info-window #infoWindow="mapInfoWindow">
-    <div class="info-window" *ngIf="selectedMarker">
-      <strong>{{ selectedMarker.title }}</strong><br />
-      <span>{{ selectedMarker.servicio }}</span><br />
-      <small>{{ selectedMarker.direccion }}</small>
-      <div class="marker-actions">
-        <button class="btn-edit" (click)="editMarker(selectedMarker)">✏️ Editar</button>
-        <button class="btn-delete" (click)="deleteMarker(selectedMarker)">🗑️ Eliminar</button>
+    <map-info-window #infoWindow="mapInfoWindow">
+      <div class="info-window" *ngIf="selectedMarker">
+        <strong>{{ selectedMarker.titulo }}</strong><br />
+        <span>{{ selectedMarker.servicio }}</span><br />
+        <span>{{ selectedMarker.telefono }}</span><br />
+        <small>{{ selectedMarker.direccion }}</small>
+        <div class="marker-actions">
+          <button class="btn-edit" (click)="editMarker(selectedMarker)">✏️ Editar</button>
+          <button class="btn-delete" (click)="deleteMarker(selectedMarker)">🗑️ Eliminar</button>
+        </div>
       </div>
-    </div>
-  </map-info-window>
+    </map-info-window>
   </google-map>
 
   <div class="muro-container">
-<app-muro
-  [coordenadasEntrada]="newLocationData"
-  [marker]="markerBeingEdited"
-  (markerUpdated)="onMarkerUpdated($event)">
-
-</app-muro>
-
+    <app-muro
+      *ngIf="mostrarMuro"
+      [coordenadasEntrada]="newLocationData"
+      [marker]="markerBeingEdited"
+      (markerUpdated)="onMarkerUpdated($event)"
+      (mostrarMapaEvent)="onMostrarMapa()"
+    ></app-muro>
   </div>
 </div>

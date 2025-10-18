@@ -1,13 +1,14 @@
-<form [formGroup]="miFormulario" (ngSubmit)="onSubmit()" class="form-container">
+<form
+ [formGroup]="miFormulario" (ngSubmit)="onSubmit()" class="form-container">
 
   <div class="form-group">
-    <label for="nombre" class="form-label">Nombre:</label>
+    <label for="titulo" class="form-label">Titulo:</label>
     <input
-      id="nombre"
+      id="titulo"
       type="text"
-      formControlName="nombre"
+      formControlName="titulo"
       class="form-input"
-      [class.input-error]="miFormulario.get('nombre')?.invalid && miFormulario.get('nombre')?.touched"
+      [class.input-error]="miFormulario.get('titulo')?.invalid && miFormulario.get('titulo')?.touched"
     >
   </div>
 
