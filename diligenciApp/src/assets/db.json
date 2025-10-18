@@ -262,6 +262,17 @@
       "lat": 6.2518348,
       "lng": -75.5949177,
       "usuario": "admin"
+    },
+    {
+      "id": "a105",
+      "titulo": "prueba componente 5 edit 2",
+      "servicio": "prueba componente 5 edit 2",
+      "direccion": "Cra 67A #51-89, Laureles - Estadio, Medellín, Laureles, Medellín, Antioquia, Colombia",
+      "telefono": "",
+      "precio": "",
+      "lat": 6.258688,
+      "lng": -75.5826688,
+      "usuario": "admin"
     }
   ],
   "usuarios": [
