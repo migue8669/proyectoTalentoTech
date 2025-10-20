@@ -1,0 +1,19 @@
+ <div class="recover-container">
+      <h2>🔑 Recuperar Contraseña</h2>
+
+      <form (ngSubmit)="recoverPassword()">
+        <label>Nombre de usuario</label>
+        <input type="text" [(ngModel)]="username" name="username" required />
+
+        <label>Nueva contraseña</label>
+        <input type="password" [(ngModel)]="newPassword" name="newPassword" required />
+
+        <button type="submit">Restablecer contraseña</button>
+      </form>
+
+      <p *ngIf="message" [class.success]="isSuccess" [class.error]="!isSuccess">
+        {{ message }}
+      </p>
+
+      <button class="back-btn" (click)="volverLogin()">Volver al login</button>
+    </div>

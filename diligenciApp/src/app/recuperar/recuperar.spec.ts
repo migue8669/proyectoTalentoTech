@@ -1,18 +1,18 @@
 /*import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Login } from './login';
+import { Recuperar } from './recuperar';
 
-describe('Login', () => {
-  let component: Login;
-  let fixture: ComponentFixture<Login>;
+describe('Recuperar', () => {
+  let component: Recuperar;
+  let fixture: ComponentFixture<Recuperar>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Login]
+      imports: [Recuperar]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Login);
+    fixture = TestBed.createComponent(Recuperar);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -20,4 +20,5 @@ describe('Login', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-});*/
+});
+*/

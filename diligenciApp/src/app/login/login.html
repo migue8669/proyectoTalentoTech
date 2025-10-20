@@ -1,30 +1,88 @@
-<div class="login-container">
-  <h2>Iniciar Sesión</h2>
+<div class="auth-wrapper">
+  <div class="auth-container">
+    <!-- FORMULARIO LOGIN -->
+    <div *ngIf="!showRegister" class="form-section">
+      <h2>Iniciar Sesión</h2>
+      <form (ngSubmit)="onLogin()">
+        <input
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+          placeholder="Usuario"
+          required
+        />
 
-  <form (ngSubmit)="onLogin()">
-    <input
-      type="text"
-      [(ngModel)]="username"
-      name="username"
-      placeholder="Usuario"
-      required
-    />
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Contraseña"
+          required
+        />
 
-    <input
-      type="password"
-      [(ngModel)]="password"
-      name="password"
-      placeholder="Contraseña"
-      required
-    />
+        <button type="submit" class="btn-primary">Ingresar</button>
 
-    <button type="submit" class="btn-login">Ingresar</button>
+        <p *ngIf="error" class="error-message">{{ error }}</p>
+      </form>
 
-    <p *ngIf="error" class="error-message">{{ error }}</p>
-  </form>
+      <div class="extra-options">
+        <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
+      </div>
 
-  <div class="register-section">
-    <p>¿No tienes cuenta?</p>
-    <button (click)="onRegister()" class="btn-register">Crear cuenta</button>
+      <p class="toggle-text">
+        ¿No tienes cuenta?
+        <a (click)="toggleRegister()">Crear cuenta</a>
+      </p>
+    </div>
+
+    <!-- FORMULARIO REGISTRO -->
+    <div *ngIf="showRegister" class="form-section">
+      <h2>Crear Cuenta</h2>
+      <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+        <input
+          type="text"
+          [(ngModel)]="newUsername"
+          name="newUsername"
+          placeholder="Nuevo usuario"
+          required
+        />
+
+        <input
+          type="password"
+          [(ngModel)]="newPassword"
+          name="newPassword"
+          placeholder="Nueva contraseña"
+          required
+        />
+
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Correo electrónico"
+          required
+        />
+
+        <input
+          type="tel"
+          [(ngModel)]="telefono"
+          name="telefono"
+          placeholder="Teléfono (opcional)"
+        />
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="registerForm.invalid"
+        >
+          Registrar
+        </button>
+      </form>
+
+      <p class="toggle-text">
+        ¿Ya tienes cuenta?
+        <a (click)="toggleRegister()">Iniciar sesión</a>
+      </p>
+    </div>
   </div>
 </div>

@@ -45,8 +45,8 @@ export class AuthService {
   }
 
   /** 🆕 Registrar usuario */
-  register(username: string, password: string): Observable<any> {
-    if (!username || !password) {
+  register(username: string, password: string, email:string): Observable<any> {
+    if (!username || !password || email) {
       return of({ error: 'El usuario y la contraseña son obligatorios.' });
     }
     const newUser = { username, password };
@@ -88,4 +88,18 @@ export class AuthService {
 
     return this.currentUser;
   }
+  /** 🔄 Recuperar contraseña */
+recoverPassword(username: string, newPassword: string): Observable<any> {
+  return this.http.get<any[]>(`${this.apiUrl}?username=${username}`).pipe(
+    map(users => {
+      if (users.length === 0) {
+        throw new Error('Usuario no encontrado.');
+      }
+
+      const user = users[0];
+      return this.http.patch(`${this.apiUrl}/${user.id}`, { password: newPassword }).subscribe();
+    })
+  );
+}
+
 }

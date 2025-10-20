@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
@@ -15,8 +15,15 @@ export class LoginComponent {
   username = '';
   password = '';
   error = '';
+  showRegister = false;
+  newUsername = '';
+  newPassword = '';
+  email = '';
+  telefono = '';
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router, private cdr: ChangeDetectorRef // 👈 agregado
+) {}
+
   onLogin() {
     this.auth.login(this.username, this.password).subscribe((success) => {
       if (success) {
@@ -26,25 +33,39 @@ export class LoginComponent {
       }
     });
   }
+  toggleRegister() {
+    this.showRegister = !this.showRegister;
+    
+       this.cdr.detectChanges(); // 👈 fuerza la actualización de vista
 
+  }
   onRegister() {
-    // Validación de campos vacíos
-    if (!this.username.trim() || !this.password.trim()) {
-      alert('Por favor, completa todos los campos antes de registrarte.');
+    if (!this.newUsername.trim() || !this.newPassword.trim() || !this.email.trim()) {
+      alert('Por favor, completa usuario, contraseña y correo.');
       return;
     }
 
-    // Llamar al servicio de registro
-    this.auth.register(this.username, this.password).subscribe({
+    const newUser = {
+      username: this.newUsername,
+      password: this.newPassword,
+      email: this.email,
+      telefono: this.telefono,
+    };
+
+    this.auth.register(newUser.username,newUser.password,newUser.email).subscribe({
       next: () => {
         alert('✅ Usuario registrado con éxito. Ahora puedes iniciar sesión.');
-        this.username = '';
-        this.password = '';
+        this.newUsername = '';
+        this.newPassword = '';
+        this.email = '';
+        this.telefono = '';
       },
       error: (err) => {
         console.error('Error al registrar usuario:', err);
         alert('⚠️ Ocurrió un error al registrar el usuario. Intenta nuevamente.');
       },
     });
+        this.showRegister = false;
+
   }
 }
