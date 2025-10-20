@@ -115,6 +115,12 @@
       "id": "f1fc",
       "username": "pruebaUser",
       "password": "1234"
+    },
+    {
+      "id": "d28d",
+      "username": "miguel",
+      "password": "123",
+      "email": "miguelramirezescobar@hotmail.com"
     }
   ]
 }

@@ -46,10 +46,12 @@ export class AuthService {
 
   /** 🆕 Registrar usuario */
   register(username: string, password: string, email:string): Observable<any> {
-    if (!username || !password || email) {
+    if (!username || !password || !email) {
       return of({ error: 'El usuario y la contraseña son obligatorios.' });
     }
-    const newUser = { username, password };
+    const newUser = { username, password, email };
+    console.log("newUser ",newUser);
+    
     return this.http.post(this.apiUrl, newUser);
   }
 
