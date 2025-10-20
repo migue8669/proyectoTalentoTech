@@ -13,7 +13,7 @@ import {
   Output,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Reporte, ReporteService } from '../services/reporte.service';
+import { Reporte, ReporteEdit, ReporteService } from '../services/reporte.service';
 import { AuthService } from '../services/auth.service';
 
 interface ReporteServicioDTO {
@@ -35,15 +35,16 @@ interface ReporteServicioDTO {
 })
 export class Muro implements OnInit, OnChanges {
   @Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
-  @Input() marker: Reporte = {
+  @Input() marker: ReporteEdit = {
+    id: 0,
     titulo: '',
-    lat: 0,
-    lng: 0,
     servicio: '',
     precio: '',
     telefono: '',
   };
-  @Output() markerUpdated: EventEmitter<Reporte> = new EventEmitter<Reporte>();
+  @Output() markerUpdated: EventEmitter<ReporteEdit> = new EventEmitter<ReporteEdit>();
+    @Output() markerNew: EventEmitter<Reporte> = new EventEmitter<Reporte>();
+
   @Output() mostrarMapaEvent = new EventEmitter<void>();
 
   direccion: string = 'Cargando dirección...';
@@ -82,6 +83,8 @@ export class Muro implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['marker'] && changes['marker'].currentValue) {
+      console.log("ngOnChanges ");
+
       const m = changes['marker'].currentValue as Reporte;
 
       // Actualizar valores del formulario
@@ -113,75 +116,110 @@ export class Muro implements OnInit, OnChanges {
     this.mostrarMapa = !this.mostrarMapa;
   }
 
-  onSubmit(): void {
-    if (!this.miFormulario.valid) {
-      this.miFormulario.markAllAsTouched();
-      console.log('❌ Formulario Inválido');
-      return;
-    }
-
-    // 🔍 Si estamos editando un marcador (tiene ID)
-    if (this.marker && this.marker.id) {
-      this.updateMarker();
-      return;
-    }
-
-    // 🆕 Si es un nuevo marcador
-    if (this.geocoder) {
-      this.geocoder.geocode(
-        { location: { lat: this.coordenadasEntrada.lat, lng: this.coordenadasEntrada.lng } },
-        (results, status) => {
-          this.direccion =
-            status === 'OK' && results?.length ? results[0].formatted_address : 'Dirección no disponible';
-
-          const nuevoReporte: Reporte = {
-            titulo: this.miFormulario.get('titulo')?.value,
-            servicio: this.miFormulario.get('servicio')?.value,
-            direccion: this.direccion,
-            telefono: this.miFormulario.get('telefono')?.value || '',
-            precio: this.miFormulario.get('precio')?.value || '',
-            lat: this.coordenadasEntrada.lat,
-            lng: this.coordenadasEntrada.lng,
-            usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
-          };
-
-          this.reporteService.addReporte(nuevoReporte).subscribe({
-            next: (res) => {
-              console.log('✅ Reporte guardado:', res);
-              this.miFormulario.reset({
-                titulo: '',
-                servicio: '',
-                direccion: '',
-                telefono: '',
-                precio: '',
-                lat: this.coordenadasEntrada.lat,
-                lng: this.coordenadasEntrada.lng,
-                usuario: this.currentUser?.username || 'desconocido',
-              });
-            },
-            error: (err) => console.error('❌ Error al guardar reporte:', err),
-          });
-
-          this.markerUpdated.emit(nuevoReporte);
-          this.mostrarMapaEvent.emit();
-        }
-      );
-    }
+onSubmit(): void {
+  if (!this.miFormulario.valid) {
+    this.miFormulario.markAllAsTouched();
+    console.log('❌ Formulario Inválido');
+    return;
   }
+
+  // 🧩 Verificamos si hay un marcador cargado con ID → es edición
+  const esEdicion = !!(this.marker && this.marker.id);
+
+  if (esEdicion) {
+    console.log('✏️ Editando marcador existente...');
+    this.updateMarker();
+    return;
+  }
+
+  // 🆕 Si no hay marker.id, creamos uno nuevo
+  console.log('🆕 Creando nuevo marcador...');
+
+  if (this.geocoder) {
+    this.geocoder.geocode(
+      { location: { lat: this.coordenadasEntrada.lat, lng: this.coordenadasEntrada.lng } },
+      (results, status) => {
+        this.direccion =
+          status === 'OK' && results?.length
+            ? results[0].formatted_address
+            : 'Dirección no disponible';
+
+        const nuevoReporte: Reporte = {
+          titulo: this.miFormulario.get('titulo')?.value,
+          servicio: this.miFormulario.get('servicio')?.value,
+          direccion: this.direccion,
+          telefono: this.miFormulario.get('telefono')?.value || '',
+          precio: this.miFormulario.get('precio')?.value || '',
+          lat: this.coordenadasEntrada.lat,
+          lng: this.coordenadasEntrada.lng,
+          usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
+        };
+
+        this.reporteService.addReporte(nuevoReporte).subscribe({
+          next: (res) => {
+            console.log('✅ Reporte guardado correctamente:', res);
+ const smallOffset = Math.random() * 0.0001 - 0.00005;
+    res.lat += smallOffset;
+    res.lng += smallOffset;
+    console.log(res.lat);
+
+            // 🔹 Emitimos con bandera para indicar que es nuevo
+            this.markerNew.emit({ ...res, esNuevo: true });
+
+            // 🔹 Reiniciamos el formulario con valores base
+            this.miFormulario.reset({
+              titulo: '',
+              servicio: '',
+              direccion: '',
+              telefono: '',
+              precio: '',
+              lat: this.coordenadasEntrada.lat,
+              lng: this.coordenadasEntrada.lng,
+              usuario: this.currentUser?.username || 'desconocido',
+            });
+
+            // 🔹 Volvemos a la vista de mapa
+            this.mostrarMapaEvent.emit();
+          },
+          error: (err) => console.error('❌ Error al guardar reporte:', err),
+        });
+      }
+    );
+  }
+}
 
   updateMarker() {
     if (!this.marker) return;
+console.log(this.marker.id);
 
-    const updated: Reporte = {
+    const updated: ReporteEdit = {
+
       ...this.marker, // mantiene lat, lng, dirección
+
       titulo: this.miFormulario.get('titulo')?.value,
       servicio: this.miFormulario.get('servicio')?.value,
       telefono: this.miFormulario.get('telefono')?.value,
       precio: this.miFormulario.get('precio')?.value,
       usuario: this.miFormulario.get('usuario')?.value,
     };
+ console.log(updated);
+  this.reporteService.updateReporte(this.marker.id, updated).subscribe({
+    next: (res) => {
+      console.log('✅ Marcador actualizado en el servidor:', res);
 
-    this.markerUpdated.emit(updated);
-    this.mostrarMapaEvent.emit();
+      // Emitir el evento para que Mapa actualice su lista local
+      this.markerUpdated.emit(res);
+
+      alert('✅ Marcador actualizado correctamente');
+      this.mostrarMapaEvent.emit();
+    },
+    error: (err) => {
+      console.error('❌ Error al actualizar marcador:', err);
+      alert('⚠️ No se pudo actualizar el marcador.');
+    },
+  });
+        //this.mostrarMapaEvent.emit();
+
+   // this.markerUpdated.emit(updated);
   }
 }

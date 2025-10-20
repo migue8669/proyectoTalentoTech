@@ -12,16 +12,21 @@ export interface Reporte {
   lat: number;
   lng: number;
   usuario?: string;
+    esNuevo?: boolean; // 👈 agregamos esta propiedad opcional
+
+
 }
 
 export interface ReporteEdit {
-  id?:  number;
-  titulo: string;
+  id:  number;
+  titulo?: string;
   servicio?: string;
   direccion?: string;
   telefono?: string;
   precio?: string;
   usuario?: string;
+  esNuevo?: boolean; // 👈 agregamos esta propiedad opcional
+
 }
 
 @Injectable({
@@ -48,7 +53,7 @@ export class ReporteService {
   }
 
   // Actualizar un reporte
-  updateReporte(id: number, reporte: Reporte): Observable<Reporte> {
-    return this.http.put<Reporte>(`${this.apiUrl}/${id}`, reporte);
+  updateReporte(id: number, reporte: ReporteEdit): Observable<ReporteEdit> {
+    return this.http.put<ReporteEdit>(`${this.apiUrl}/${id}`, reporte);
   }
 }

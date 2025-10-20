@@ -1,20 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
-import { HttpClient } from '@angular/common/http';
 import { Coordenadas, LocationService } from '../services/location.service';
 import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
-import { Reporte } from '../services/reporte.service';
-export interface CustomMarker extends google.maps.LatLngLiteral {
-  id?: string | number;
-  title: string;
-  servicio?: string;
-  direccion?: string;
-  telefono?: string;
-  precio?: string;
-  usuario?: string; // ✅ nuevo campo: quién lo creó
-}
+import { Reporte, ReporteEdit, ReporteService } from '../services/reporte.service';
+
 @Component({
   selector: 'app-mapa',
   standalone: true,
@@ -24,20 +15,13 @@ export interface CustomMarker extends google.maps.LatLngLiteral {
 })
 export class Mapa implements OnInit {
   newLocationData: Coordenadas = { lat: 40.7128, lng: -74.006 };
-  markerBeingEdited: Reporte = {
-    lat: 0,
-    lng: 0,
-    titulo: '',
-    servicio: '',
-    precio: '',
-    telefono: '',
-  }; // ← nuevo
-  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow; // referencia global
+  markerBeingEdited: ReporteEdit = { id: 0, titulo: '', servicio: '', precio: '', telefono: '' };
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
 
   isLoading = false;
   errorGeoloc: string | null = null;
   selectedMarker: Reporte | null = null;
-  currentUser: any = null; // ✅ usuario logueado  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
+  currentUser: any = null;
 
   mostrarMapa = true;
   mostrarMuro = false;
@@ -46,8 +30,6 @@ export class Mapa implements OnInit {
   zoom = 12;
   markerPositions: Reporte[] = [];
 
-
-  private apiUrl = 'http://localhost:3000/reportes';
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'roadmap',
     zoomControl: true,
@@ -62,22 +44,21 @@ export class Mapa implements OnInit {
   constructor(
     private locationService: LocationService,
     private cdRef: ChangeDetectorRef,
-    private http: HttpClient,
+    private reporteService: ReporteService,
     private auth: AuthService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.auth.getCurrentUser();
     this.getLocation();
-    this.loadMarkersFromJson();
+    this.loadMarkers();
   }
-toggleVista() {
-  console.log("toogle vista ");
 
-  this.mostrarMuro = !this.mostrarMuro;
-  this.mostrarMapa = !this.mostrarMapa;
-  this.cdRef.detectChanges();
-}
+  toggleVista() {
+    this.mostrarMuro = !this.mostrarMuro;
+    this.mostrarMapa = !this.mostrarMapa;
+    this.cdRef.detectChanges();
+  }
 
   async getLocation() {
     try {
@@ -98,43 +79,55 @@ toggleVista() {
       });
 
       this.cdRef.detectChanges();
-    } catch (error:any) {
+    } catch (error: any) {
       this.errorGeoloc = 'Error al obtener ubicación: ' + error.message;
       console.error(this.errorGeoloc);
     } finally {
       this.isLoading = false;
     }
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-    //Add '${implements OnChanges}' to the class.
-    if (changes['markerBeingEdited'] && this.markerBeingEdited) {
-      console.log('📍 Marcador a editar:', this.markerBeingEdited);
-    }
-  }
-  trackByMarkerId(index: number, marker: Reporte) {
+ trackByMarkerId(index: number, marker: Reporte): number | undefined {
     return marker.id;
   }
-  loadMarkersFromJson() {
-    this.http.get<Reporte[]>(this.apiUrl).subscribe({
-      next: (data) => {
-        this.markerPositions = data.map((m) => ({
+loadMarkers() {
+  this.reporteService.getReportes().subscribe({
+    next: (data) => {
+      console.log('📍 Datos recibidos:', data);
+
+      const markerMap = new Map<string, number>();
+
+      this.markerPositions = data.map((m) => {
+        const key = `${m.lat}_${m.lng}`;
+
+        // Contar cuántos marcadores existen en la misma posición
+        const count = markerMap.get(key) || 0;
+        markerMap.set(key, count + 1);
+
+        // Desplazar cada marcador sucesivo en esa posición
+        const offsetAngle = (count * 45 * Math.PI) / 180; // cada nuevo, 45° más
+        const offsetDistance = 0.0003; // ~30 m de distancia visible
+        const latOffset = Math.sin(offsetAngle) * offsetDistance;
+        const lngOffset = Math.cos(offsetAngle) * offsetDistance;
+
+        return {
           id: m.id,
-          lat: Number(m.lat),
-          lng: Number(m.lng),
+          lat: Number(m.lat) + latOffset,
+          lng: Number(m.lng) + lngOffset,
           titulo: m.titulo || 'Punto sin nombre',
           servicio: m.servicio,
           direccion: m.direccion,
           telefono: m.telefono,
           precio: m.precio,
           usuario: m.usuario || 'desconocido',
-        }));
-        this.cdRef.detectChanges();
-      },
-      error: (err) => console.error('⚠️ Error al cargar marcadores:', err),
-    });
-  }
+        };
+      });
+
+      this.cdRef.detectChanges();
+    },
+    error: (err) => console.error('⚠️ Error al cargar marcadores:', err),
+  });
+}
+
 
   openInfoWindow(marker: Reporte, markerRef: MapMarker, infoWindow: MapInfoWindow) {
     this.selectedMarker = marker;
@@ -144,26 +137,24 @@ toggleVista() {
   editMarker(marker: Reporte) {
     if (marker.usuario !== this.currentUser?.username) {
       alert('❌ No puedes editar marcadores de otros usuarios.');
-      return;}
-          this.infoWindow?.close();
+      return;
+    }
 
-    // 🔹 Enviar el marcador al muro para que pinte sus datos en el formulario
-    this.cdRef.detectChanges();
-
-    this.markerBeingEdited = { ...marker };
+    this.infoWindow?.close();
+    this.markerBeingEdited = { ...marker, id: marker.id ?? 0 };
     this.mostrarMuro = true;
     this.mostrarMapa = false;
-    this.infoWindow?.close();
+    this.cdRef.detectChanges();
   }
 
   deleteMarker(marker: Reporte) {
-    if (!marker.id || marker.usuario !== this.currentUser?.username) return;
-    if (marker.usuario !== this.currentUser?.username) {
+    if (!marker.id || marker.usuario !== this.currentUser?.username) {
       alert('❌ No puedes eliminar marcadores de otros usuarios.');
       return;
     }
+
     if (confirm(`¿Seguro que quieres eliminar "${marker.titulo}"?`)) {
-      this.http.delete(`${this.apiUrl}/${marker.id}`).subscribe({
+      this.reporteService.deleteReporte(marker.id).subscribe({
         next: () => {
           this.markerPositions = this.markerPositions.filter((m) => m.id !== marker.id);
           this.selectedMarker = null;
@@ -175,21 +166,41 @@ toggleVista() {
     }
   }
 
+onMarkerUpdated(updated: any) {
+  console.log('🆙 Marcador actualizado o nuevo:', updated);
 
-  onMarkerUpdated(updated: Reporte) {
+  if (updated.esNuevo) {
+    // 📍 Nuevo marcador
+    const smallOffset = Math.random() * 0.0001 - 0.00005;
+    this.markerPositions.push({
+      id: updated.id,
+      titulo: updated.titulo,
+      servicio: updated.servicio,
+      precio: updated.precio,
+      telefono: updated.telefono,
+      lat: updated.lat + smallOffset,
+      lng: updated.lng + smallOffset,
+      usuario: updated.usuario,
+      direccion: updated.direccion,
+    });
+  } else {
+    // ✏️ Edición de marcador existente
     const index = this.markerPositions.findIndex((m) => m.id === updated.id);
     if (index > -1) {
-      this.markerPositions[index] = { ...updated };
-      this.markerPositions = [...this.markerPositions];
-      if (this.selectedMarker?.id === updated.id) this.selectedMarker = { ...updated };
-      this.cdRef.detectChanges();
-      alert('✅ Información del marcador actualizada');
+      this.markerPositions[index] = { ...this.markerPositions[index], ...updated };
     }
   }
 
+  this.cdRef.detectChanges();
+}
+
+
   onMostrarMapa() {
+    this.loadMarkers();
     this.mostrarMapa = true;
     this.mostrarMuro = false;
+      this.markerBeingEdited = { id: 0, titulo: '', servicio: '', precio: '', telefono: '' };
+
     this.cdRef.detectChanges();
   }
 
