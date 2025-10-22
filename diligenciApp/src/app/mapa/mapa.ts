@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
 import { Coordenadas, LocationService } from '../services/location.service';
 import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
 import { Reporte, ReporteEdit, ReporteService } from '../services/reporte.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-mapa',
@@ -104,7 +104,7 @@ loadMarkers() {
         markerMap.set(key, count + 1);
 
         // Desplazar cada marcador sucesivo en esa posición
-        const offsetAngle = (count * 45 * Math.PI) / 180; // cada nuevo, 45° más
+        const offsetAngle = (count * 25 * Math.PI) / 180; // cada nuevo, 45° más
         const offsetDistance = 0.0003; // ~30 m de distancia visible
         const latOffset = Math.sin(offsetAngle) * offsetDistance;
         const lngOffset = Math.cos(offsetAngle) * offsetDistance;
@@ -135,6 +135,10 @@ loadMarkers() {
   }
 
   editMarker(marker: Reporte) {
+    console.log("edit marker ",marker);
+        console.log("currentUser ",this.currentUser);
+
+    
     if (marker.usuario !== this.currentUser?.username) {
       alert('❌ No puedes editar marcadores de otros usuarios.');
       return;

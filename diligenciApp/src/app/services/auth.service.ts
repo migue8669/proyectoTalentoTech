@@ -54,6 +54,21 @@ export class AuthService {
     
     return this.http.post(this.apiUrl, newUser);
   }
+  /** 🔍 Buscar usuario por nombre y correo */
+findUserByEmail(username: string, email: string): Observable<any> {
+  console.log("findUser");
+  
+  return this.http.get<any[]>(`${this.apiUrl}?username=${username}&email=${email}`)
+    .pipe(map(users => users.length > 0 ? users[0] : null));
+}
+
+/** 📧 Enviar correo con código de recuperación (simulado) */
+sendRecoveryEmail(email: string, codigo: string): Observable<any> {
+  console.log(`📨 Simulando envío de correo a ${email} con código: ${codigo}`);
+  // Aquí podrías conectar con un backend real o servicio SMTP
+  return of({ success: true });
+}
+
 
   /** 🚪 Cerrar sesión */
   logout() {
@@ -92,6 +107,8 @@ export class AuthService {
   }
   /** 🔄 Recuperar contraseña */
 recoverPassword(username: string, newPassword: string): Observable<any> {
+  console.log("recover ");
+  
   return this.http.get<any[]>(`${this.apiUrl}?username=${username}`).pipe(
     map(users => {
       if (users.length === 0) {

@@ -1,12 +1,18 @@
 <div class="map-container">
   <div class="header">
-    <h1>🌍 DiligenciApp</h1>
-    <p>Diligencias y Servicios</p>
-    <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
-    <button class="refresh-btn" (click)="loadMarkers()">🔄 </button>
-    <button class="toggle-btn" (click)="toggleVista()">
-      {{ mostrarMuro ? '🗺️ Ver mapa' : '🧱 Ver muro' }}
-    </button>
+    <div class="brand">
+      <h1>🌍 DiligenciApp</h1>
+      <p>Diligencias y Servicios</p>
+    </div>
+
+    <div class="controls">
+      <button class="refresh-btn" (click)="loadMarkers()" title="Recargar marcadores">🔄</button>
+      <button class="toggle-btn" (click)="toggleVista()" title="Alternar vista">
+        {{ mostrarMuro ? '🗺️ Ver mapa' : '🧱 Ver muro' }}
+      </button>
+            <button class="logout-btn" (click)="logout()" title="Cerrar sesión">X</button>
+
+    </div>
   </div>
 
   <google-map
@@ -27,11 +33,14 @@
 
     <map-info-window #infoWindow="mapInfoWindow">
       <div class="info-window" *ngIf="selectedMarker">
-        <strong>{{ selectedMarker.titulo }}</strong><br />
-        <span>{{ selectedMarker.servicio }}</span><br />
-        <span>{{ selectedMarker.telefono }}</span><br />
+        <strong>{{ selectedMarker.titulo }}</strong
+        ><br />
+        <span>{{ selectedMarker.servicio }}</span
+        ><br />
+        <span>{{ selectedMarker.telefono }}</span
+        ><br />
         <small>{{ selectedMarker.direccion }}</small>
-        <div class="marker-actions">
+        <div class="marker-actions" *ngIf="selectedMarker?.usuario === currentUser?.username">
           <button class="btn-edit" (click)="editMarker(selectedMarker)">✏️ Editar</button>
           <button class="btn-delete" (click)="deleteMarker(selectedMarker)">🗑️ Eliminar</button>
         </div>

@@ -1,70 +1,48 @@
-.recover-container {
-  max-width: 350px;
-  margin: 100px auto;
-  padding: 30px;
-  border-radius: 10px;
-  background: #f8fafc;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+.recuperar-container {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 40px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif; /* ✅ Fuente igual al login */
 }
 
-.recover-container h2 {
-  color: #1e3a8a;
+.recuperar-container h2 {
+  color: #2c3e50;
   margin-bottom: 20px;
 }
 
-.recover-container label {
-  display: block;
-  text-align: left;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 8px;
-  margin-top: 12px;
-}
-
-.recover-container input {
+input {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
   font-size: 1rem;
-  margin-bottom: 15px;
+  font-family: 'Poppins', sans-serif; /* ✅ Coincide con login */
 }
 
-.recover-container button {
+button {
   width: 100%;
-  padding: 10px;
-  background-color: #2563eb;
-  color: white;
+  padding: 12px;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: background-color 0.2s ease-in-out;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.3s ease;
+  font-family: 'Poppins', sans-serif; /* ✅ Coincide con login */
 }
 
-.recover-container button:hover {
-  background-color: #1d4ed8;
+button:hover {
+  background: linear-gradient(135deg, #2980b9, #2471a3);
 }
 
-.recover-container .back-btn {
-  background-color: #64748b;
-  margin-top: 10px;
-}
-
-.recover-container .back-btn:hover {
-  background-color: #475569;
-}
-
-.success {
-  color: #16a34a;
-  font-weight: 500;
-  margin-top: 1rem;
-}
-
-.error {
-  color: #dc2626;
-  font-weight: 500;
-  margin-top: 1rem;
+.mensaje {
+  margin-top: 15px;
+  color: #e74c3c;
+  font-family: 'Poppins', sans-serif; /* ✅ Coincide con login */
 }

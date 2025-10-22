@@ -1,4 +1,4 @@
-import { LocationService, Coordenadas } from '../services/location.service';
+import { Coordenadas } from '../services/location.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -69,7 +69,7 @@ export class Muro implements OnInit, OnChanges {
       lat: new FormControl({ value: 0, disabled: true }, { nonNullable: true }),
       lng: new FormControl({ value: 0, disabled: true }, { nonNullable: true }),
       precio: new FormControl('', { nonNullable: true }),
-      telefono: new FormControl('', { nonNullable: true }),
+      telefono: new FormControl('', { nonNullable: true,  validators:  Validators.pattern(/^\d{10}$/) }),
       usuario: new FormControl('', { nonNullable: true }),
     });
   }

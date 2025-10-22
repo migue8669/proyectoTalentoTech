@@ -19,10 +19,9 @@ export class LoginComponent {
   newUsername = '';
   newPassword = '';
   email = '';
-  telefono = '';
+  phone = '';
 
-  constructor(private auth: AuthService, private router: Router, private cdr: ChangeDetectorRef // 👈 agregado
-) {}
+  constructor(private auth: AuthService, private router: Router, private cdr: ChangeDetectorRef ) {}
 
   onLogin() {
     this.auth.login(this.username, this.password).subscribe((success) => {
@@ -49,7 +48,7 @@ export class LoginComponent {
       username: this.newUsername,
       password: this.newPassword,
       email: this.email,
-      telefono: this.telefono,
+      phone: this.phone,
     };
 
     this.auth.register(newUser.username,newUser.password,newUser.email).subscribe({
@@ -58,7 +57,7 @@ export class LoginComponent {
         this.newUsername = '';
         this.newPassword = '';
         this.email = '';
-        this.telefono = '';
+        this.phone = '';
       },
       error: (err) => {
         console.error('Error al registrar usuario:', err);
