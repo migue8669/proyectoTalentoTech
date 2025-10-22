@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { log } from 'node:console';
 
 @Component({
   selector: 'app-login',
@@ -23,18 +24,41 @@ export class LoginComponent {
 
   constructor(private auth: AuthService, private router: Router, private cdr: ChangeDetectorRef ) {}
 
-  onLogin() {
-    this.auth.login(this.username, this.password).subscribe((success) => {
+// Archivo: LoginComponent.ts (Método onLogin corregido)
+
+onLogin() {
+
+  // ✅ CORRECCIÓN CLAVE: Valida que los campos no estén vacíos.
+  if (!this.username.trim() || !this.password.trim()) {
+    this.error = 'Debes ingresar tanto el usuario como la contraseña.';
+    // Detenemos la ejecución si falta algún campo.
+    return;
+  }
+
+  console.log(this.username, this.password);
+
+  // 2. Llama al servicio, que ya valida existencia y contraseña en una sola consulta.
+  this.auth.login(this.username, this.password).subscribe({
+    next: (success) => {
+      console.log(success);
+
       if (success) {
         this.router.navigate(['/mapa']);
       } else {
+        // 3. Muestra el mensaje de error genérico (seguridad recomendada).
         this.error = 'Usuario o contraseña incorrectos';
       }
-    });
-  }
+    },
+    error: (err) => {
+      // Manejo de errores de red o servidor (ej: si el backend no responde).
+      console.error('Error de conexión o servidor:', err);
+      this.error = 'No se pudo conectar con el servidor. Intenta más tarde.';
+    }
+  });
+}
   toggleRegister() {
     this.showRegister = !this.showRegister;
-    
+
        this.cdr.detectChanges(); // 👈 fuerza la actualización de vista
 
   }

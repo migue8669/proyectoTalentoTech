@@ -100,6 +100,55 @@
 /* Hover / active states */
 .header .controls button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 
+  box-shadow: 0 14px
 28px rgba(17, 24, 39, 0.12);
+}
+
+/* ---------- Estilos para la Ventana de Información (Info Window) ---------- */
+
+/* Contenedor de las acciones dentro de la Info Window */
+.info-window .marker-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px; /* Espacio entre los botones */
+  justify-content: flex-start;
+}
+
+/* Base de estilo para los botones de la Info Window */
+.info-window .marker-actions button {
+  /* Propiedades heredadas de los botones del header */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* Ajuste un poco el gap para la ventana */
+  padding: 6px 10px;
+  border-radius: 8px; /* Ligeramente más pequeños */
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem; /* Tamaño de fuente más pequeño */
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.08); /* Sombra más suave */
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
+  line-height: 1;
+  min-height: 34px;
+}
+
+/* Estilo específico para el botón de Editar (similar a .refresh-btn) */
+.info-window .marker-actions .btn-edit {
+  /* Azul para editar (similar al Refresh/Azul en tu header) */
+  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+  color: #fff;
+}
+
+/* Estilo específico para el botón de Eliminar (similar a .logout-btn) */
+.info-window .marker-actions .btn-delete {
+  /* Rojo para eliminar (similar al Logout/Rojo en tu header) */
+  background: linear-gradient(180deg, #ff6b6b 0%, #e44e4e 100%);
+  color: #fff;
+}
+
+/* Hover/active states para los botones de la Info Window */
+.info-window .marker-actions button:hover {
+  transform: translateY(-2px); /* Menos desplazamiento que en el header */
+  box-shadow: 0 8px 16px rgba(17, 24, 39, 0.15);
 }

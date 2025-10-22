@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { log } from 'node:console';
 
 export interface Reporte {
   id?:  number;
@@ -33,7 +34,7 @@ export interface ReporteEdit {
   providedIn: 'root'
 })
 export class ReporteService {
-  private apiUrl = 'http://localhost:3000/reportes'; // URL del json-server
+  private apiUrl = 'http://localhost:8081/reporte'; // URL del json-server
 
   constructor(private http: HttpClient) {}
 
@@ -49,6 +50,8 @@ export class ReporteService {
 
   // Eliminar un reporte por id
   deleteReporte(id: number): Observable<void> {
+    console.log(id);
+
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
