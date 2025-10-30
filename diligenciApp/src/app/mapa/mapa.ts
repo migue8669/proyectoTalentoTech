@@ -10,12 +10,12 @@ import { Banner } from "../banner/banner";
 @Component({
   selector: 'app-mapa',
   standalone: true,
-  imports: [CommonModule, GoogleMapsModule, Muro, Banner],
+  imports: [CommonModule, GoogleMapsModule, Muro],
   templateUrl: './mapa.html',
   styleUrls: ['./mapa.css'],
 })
 export class Mapa implements OnInit {
-  newLocationData: Coordenadas = { lat: 40.7128, lng: -74.006 };
+  newLocationData: Coordenadas = { lat:  6.261282148730641, lng:  -75.54816176338464 };
   markerBeingEdited: Reporte = {
     id: 0, titulo: '', servicio: '', precio: '', telefono: '', estado: 'DISPONIBLE', tomadoPor: '',
     lat: 0,
@@ -31,7 +31,7 @@ export class Mapa implements OnInit {
   mostrarMapa = true;
   mostrarMuro = false;
 
-  center: google.maps.LatLngLiteral = { lat: 40.7128, lng: -74.006 };
+  center: google.maps.LatLngLiteral = { lat: 6.261282148730641 , lng: -75.54816176338464 };
   zoom = 12;
   markerPositions: Reporte[] = [];
 

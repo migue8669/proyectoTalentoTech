@@ -1,12 +1,16 @@
 /* Contenedor del Formulario */
 .form-container {
-    max-width: 450px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  background-color: #fff;
+  padding: 14px;
+  transform-origin: top center;
 }
 
 /* Grupo de Campo (Label + Input/Textarea) */
@@ -26,10 +30,10 @@
 /* Estilos Comunes para Inputs y Textareas */
 .form-input, .form-textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 6px 8px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 12px;
     box-sizing: border-box; /* Asegura que el padding no cambie el ancho total */
     transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -83,4 +87,41 @@
     background-color: #6c757d; /* Gris */
     cursor: not-allowed;
     opacity: 0.7;
+      margin-top: 12px;
+
 }
+html, body {
+  overflow: hidden;
+  height: 100%;
+}
+@media (max-height: 800px) {
+  .form-container {
+    transform: scale(0.9);
+  }
+}
+
+@media (max-height: 700px) {
+  .form-container {
+    transform: scale(0.8);
+  }
+}
+
+@media (max-height: 600px) {
+  .form-container {
+    transform: scale(0.7);
+  }
+}
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.form-container {
+  height: 100%;
+  overflow: hidden;
+  padding: 15px;
+  transform-origin: top center;
+}
+
+/* ya tienes la escala por altura */
