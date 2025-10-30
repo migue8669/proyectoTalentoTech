@@ -1,60 +1,117 @@
 <div class="map-container">
-  <div class="header">
-    <div class="brand">
-      <h1>🌍 DiligenciApp</h1>
-      <p>Diligencias y Servicios</p>
-    </div>
+      <div class="header">
+        <div class="brand">
+          <h1>🌍 DiligenciApp</h1>
+          <p>Diligencias y Servicios</p>
+        </div>
 
-    <div class="controls">
-      <button class="refresh-btn" (click)="loadMarkers()" title="Recargar marcadores">🔄</button>
-      <button class="toggle-btn" (click)="toggleVista()" title="Alternar vista">
-        {{ mostrarMuro ? '🗺️ Ver mapa' : '🧱 Ver muro' }}
-      </button>
-            <button class="logout-btn" (click)="logout()" title="Cerrar sesión">X</button>
-
-    </div>
-  </div>
-
-  <google-map
-    *ngIf="mostrarMapa"
-    height="450px"
-    width="100%"
-    [options]="mapOptions"
-    [center]="center"
-    [zoom]="zoom"
-  >
-    <map-marker
-      *ngFor="let marker of markerPositions; trackBy: trackByMarkerId"
-      #markerElem="mapMarker"
-      [position]="{ lat: marker.lat, lng: marker.lng }"
-      [title]="marker.titulo"
-      (mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
-    ></map-marker>
-
-    <map-info-window #infoWindow="mapInfoWindow">
-      <div class="info-window" *ngIf="selectedMarker">
-        <strong>{{ selectedMarker.titulo }}</strong
-        ><br />
-        <span>{{ selectedMarker.servicio }}</span
-        ><br />
-        <span>{{ selectedMarker.telefono }}</span
-        ><br />
-        <small>{{ selectedMarker.direccion }}</small>
-        <div class="marker-actions" *ngIf="selectedMarker?.usuario === currentUser?.username">
-          <button class="btn-edit" (click)="editMarker(selectedMarker)">✏️ Editar</button>
-          <button class="btn-delete" (click)="deleteMarker(selectedMarker)">🗑️ Eliminar</button>
+        <div class="controls">
+          <button class="refresh-btn" (click)="loadMarkers()" title="Recargar marcadores">🔄</button>
+          <button class="toggle-btn" (click)="toggleVista()" title="Alternar vista">
+            {{ mostrarMuro ? '🗺️ Mapa' : '🧱 Muro' }}
+          </button>
+          <button class="logout-btn" (click)="logout()" title="Cerrar sesión">X</button>
         </div>
       </div>
-    </map-info-window>
-  </google-map>
 
-  <div class="muro-container">
-    <app-muro
-      *ngIf="mostrarMuro"
-      [coordenadasEntrada]="newLocationData"
-      [marker]="markerBeingEdited"
-      (markerUpdated)="onMarkerUpdated($event)"
-      (mostrarMapaEvent)="onMostrarMapa()"
-    ></app-muro>
-  </div>
+      <google-map
+        *ngIf="mostrarMapa"
+        height="450px"
+        width="100%"
+        [options]="mapOptions"
+        [center]="center"
+        [zoom]="zoom"
+      >
+        <map-marker
+          *ngFor="let marker of markerPositions; trackBy: trackByMarkerId"
+          #markerElem="mapMarker"
+          [position]="{ lat: marker.lat, lng: marker.lng }"
+          [title]="marker.titulo"
+          (mapClick)="openInfoWindow(marker, markerElem, infoWindow)"
+        ></map-marker>
+
+        <map-info-window #infoWindow="mapInfoWindow">
+          <div class="info-window" *ngIf="selectedMarker">
+            <!-- Título y detalles -->
+            <strong>{{ selectedMarker.titulo }}</strong
+            >
+            <span>Servicio: {{ selectedMarker.servicio }}</span
+            >
+                <span>Categoria: {{ selectedMarker.categoria }}</span>
+            <span>Teléfono: {{ selectedMarker.telefono }}</span
+            >
+            <small>📍 {{ selectedMarker.direccion }}</small>
+
+            <!-- SECCIÓN DE ESTADO (Separada del botón de acción) -->
+            <div class="status-section mt-2"
+                [ngClass]="{
+                    'bg-green-100 text-green-800': selectedMarker.estado?.toUpperCase() === 'DISPONIBLE',
+                    'bg-yellow-100 text-yellow-800': selectedMarker.estado?.toUpperCase() === 'TOMADO',
+                    'bg-gray-100 text-gray-500': selectedMarker.estado?.toUpperCase() === 'FINALIZADO'
+                }">
+
+              <span *ngIf="selectedMarker.estado?.toUpperCase() === 'DISPONIBLE'">
+                  Estado: <strong>DISPONIBLE</strong> (Ofrecida por {{ selectedMarker.usuario }})
+              </span>
+              <span *ngIf="selectedMarker.estado?.toUpperCase() === 'TOMADO'">
+                  Estado: <strong>TOMADO</strong> por {{ selectedMarker.tomadoPor || 'un diligenciador' }}
+              </span>
+              <span *ngIf="selectedMarker.estado?.toUpperCase() === 'FINALIZADO'">
+                  Estado: <strong>FINALIZADO</strong>
+              </span>
+            </div>
+
+            <!-- CONTENEDOR DE ACCIONES (Tomar/Finalizar/Editar/Eliminar) -->
+            <div class="marker-actions mt-3">
+
+              <!-- ACCIÓN PARA TOMAR SOLICITUD (Solo si está disponible y NO soy el dueño) -->
+              <button
+                  *ngIf="selectedMarker.estado?.toUpperCase() === 'DISPONIBLE' && selectedMarker.usuario !== currentUser?.username"
+                  class="btn-take"
+                  (click)="takeMarker(selectedMarker!)">
+                👉 Tomar Solicitud
+              </button>
+
+              <!-- ACCIÓN PARA FINALIZAR SOLICITUD (Solo si está tomado por el usuario actual) -->
+              <button
+                  *ngIf="selectedMarker.estado?.toUpperCase() === 'TOMADO' && selectedMarker.tomadoPor === currentUser?.username"
+                  class="btn-finish"
+                  (click)="finishMarker(selectedMarker!)">
+                ✅ Finalizar Solicitud
+              </button>
+
+              <!-- ACCIÓN DEL PROPIETARIO (Editar/Eliminar) -->
+              <ng-container *ngIf="selectedMarker.usuario === currentUser?.username">
+                <button class="btn-edit" (click)="editMarker(selectedMarker!)">✏️ Editar</button>
+                <button class="btn-delete" (click)="deleteMarker(selectedMarker!)">🗑️ Eliminar</button>
+              </ng-container>
+
+              <!-- MENSAJE DE ESTADO (si no hay botón de acción) -->
+              <span
+                  *ngIf="selectedMarker.estado?.toUpperCase() === 'TOMADO' && selectedMarker.tomadoPor !== currentUser?.username"
+                  class="current-action-msg text-red-700">
+                Tomada por otro diligenciador.
+              </span>
+              <span
+                  *ngIf="selectedMarker.estado?.toUpperCase() === 'FINALIZADO'"
+                  class="current-action-msg text-gray-600">
+                Esta solicitud ya ha sido finalizada.
+              </span>
+
+            </div>
+          </div>
+        </map-info-window>
+      </google-map>
+ <!-- MURO: FORMULARIO DE CREACIÓN/EDICIÓN -->
+      <div class="muro-container">
+        <app-muro
+          *ngIf="mostrarMuro"
+          [marker]="markerBeingEdited"
+          [coordenadasEntrada]="newLocationData"
+          (markerUpdated)="onMarkerUpdated($event)"
+          (mostrarMapaEvent)="onMostrarMapa()"
+        ></app-muro>
+      </div>
+
+      <app-banner>DiligenciApp - ¡Tu servicio, a tu alcance!</app-banner>
 </div>

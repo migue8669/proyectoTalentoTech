@@ -3,19 +3,24 @@ import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps
 import { Coordenadas, LocationService } from '../services/location.service';
 import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
-import { Reporte, ReporteEdit, ReporteService } from '../services/reporte.service';
+import { Reporte, ReporteService } from '../services/reporte.service';
 import { CommonModule } from '@angular/common';
+import { Banner } from "../banner/banner";
 
 @Component({
   selector: 'app-mapa',
   standalone: true,
-  imports: [CommonModule, GoogleMapsModule, Muro],
+  imports: [CommonModule, GoogleMapsModule, Muro, Banner],
   templateUrl: './mapa.html',
   styleUrls: ['./mapa.css'],
 })
 export class Mapa implements OnInit {
   newLocationData: Coordenadas = { lat: 40.7128, lng: -74.006 };
-  markerBeingEdited: ReporteEdit = { id: 0, titulo: '', servicio: '', precio: '', telefono: '' };
+  markerBeingEdited: Reporte = {
+    id: 0, titulo: '', servicio: '', precio: '', telefono: '', estado: 'DISPONIBLE', tomadoPor: '',
+    lat: 0,
+    lng: 0
+  };
   @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
 
   isLoading = false;
@@ -75,7 +80,9 @@ export class Mapa implements OnInit {
         direccion: 'Detectada por el navegador',
         telefono: '',
         precio: '',
+        estado: 'DISPONIBLE',
         usuario: this.currentUser?.username || 'sistema',
+        tomadoPor: ''
       });
 
       this.cdRef.detectChanges();
@@ -85,6 +92,79 @@ export class Mapa implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+    finishMarker(marker: Reporte) {
+      console.log("finish marker ", marker);
+     console.log("current user ",this.currentUser);
+
+   // if (marker.usuario == this.currentUser.username) return;
+
+ //   if (!window.confirm(`¿Seguro que quieres marcar "${marker.titulo}" como finalizado?`)) return;
+
+    const updatedData: Reporte = {
+      estado: 'FINALIZADO',
+      id: marker.id,
+      titulo: marker.titulo,
+      servicio: marker.servicio,
+      telefono: marker.telefono,
+      direccion: marker.direccion,
+      precio: marker.precio,
+      usuario: marker.usuario,
+      lat: marker.lat,
+      lng: marker.lng
+    };
+
+    this.reporteService.updateReporte(marker.id, updatedData).subscribe({
+      next: (response) => {
+        this.updateMarkerInList(marker.id!, updatedData);
+        this.infoWindow?.close();
+        this.cdRef.detectChanges();
+      },
+      error: (err) => console.error('Error al finalizar la solicitud:', err)
+    });
+  }
+
+   updateMarkerInList(id: number, changes: Partial<Reporte>) {
+     // 1. Actualizar la lista principal
+    const index = this.markerPositions.findIndex(m => m.id === id);
+    if (index > -1) {
+        this.markerPositions[index] = { ...this.markerPositions[index], ...changes };
+    }
+
+    // 2. Actualizar el marcador seleccionado (si es el mismo)
+    if (this.selectedMarker?.id === id) {
+        this.selectedMarker = { ...this.selectedMarker, ...changes };
+    }
+  }
+    takeMarker(marker: Reporte) {
+    if (!marker.id || !this.currentUser || marker.estado.toUpperCase() !== 'DISPONIBLE') return;
+console.log(marker);
+console.log(this.currentUser.username);
+console.log(marker.usuario);
+
+    const updatedData: Reporte = {
+      estado: 'TOMADO',
+      tomadoPor: this.currentUser.username,
+      id: marker.id,
+      titulo: marker.titulo,
+      servicio: marker.servicio,
+      telefono: marker.telefono,
+      direccion: marker.direccion,
+      precio: marker.precio,
+      lat: marker.lat,
+      lng: marker.lng,
+      usuario: marker.usuario
+    };
+console.log(updatedData);
+
+    this.reporteService.updateReporte(marker.id, updatedData).subscribe({
+      next: (response) => {
+        this.updateMarkerInList(marker.id!, updatedData);
+        this.infoWindow?.close();
+        this.cdRef.detectChanges();
+      },
+      error: (err) => console.error('Error al tomar la solicitud:', err)
+    });
   }
  trackByMarkerId(index: number, marker: Reporte): number | undefined {
     return marker.id;
@@ -104,8 +184,8 @@ loadMarkers() {
         markerMap.set(key, count + 1);
 
         // Desplazar cada marcador sucesivo en esa posición
-        const offsetAngle = (count * 5 * Math.PI) / 180; // cada nuevo, 45° más
-        const offsetDistance = 0.0003; // ~30 m de distancia visible
+        const offsetAngle = (count * 1 * Math.PI) / 180; // cada nuevo, 45° más
+        const offsetDistance = 0.00003; // ~30 m de distancia visible
         const latOffset = Math.sin(offsetAngle) * offsetDistance;
         const lngOffset = Math.cos(offsetAngle) * offsetDistance;
 
@@ -118,6 +198,8 @@ loadMarkers() {
           direccion: m.direccion,
           telefono: m.telefono,
           precio: m.precio,
+          estado: m.estado,
+          tomadoPor: m.tomadoPor,
           usuario: m.usuario || 'desconocido',
         };
       });
@@ -131,6 +213,11 @@ loadMarkers() {
 
   openInfoWindow(marker: Reporte, markerRef: MapMarker, infoWindow: MapInfoWindow) {
     this.selectedMarker = marker;
+    console.log(marker);
+
+
+    console.log(this.selectedMarker);
+
     infoWindow.open(markerRef);
   }
 
@@ -187,6 +274,7 @@ onMarkerUpdated(updated: any) {
       lng: updated.lng + smallOffset,
       usuario: updated.usuario,
       direccion: updated.direccion,
+      estado: updated.estado,
     });
   } else {
     // ✏️ Edición de marcador existente
@@ -204,7 +292,7 @@ onMarkerUpdated(updated: any) {
     this.loadMarkers();
     this.mostrarMapa = true;
     this.mostrarMuro = false;
-      this.markerBeingEdited = { id: 0, titulo: '', servicio: '', precio: '', telefono: '' };
+      this.markerBeingEdited = { id: 0, titulo: '', servicio: '', precio: '', telefono: '' ,estado:'DISPONIBLE',tomadoPor:'', lat:0, lng:0};
 
     this.cdRef.detectChanges();
   }

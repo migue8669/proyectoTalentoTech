@@ -13,12 +13,14 @@ import {
   Output,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Reporte, ReporteEdit, ReporteService } from '../services/reporte.service';
+import { Categoria, Reporte, ReporteService } from '../services/reporte.service';
 import { AuthService } from '../services/auth.service';
 
 interface ReporteServicioDTO {
   titulo: FormControl<string>;
   servicio: FormControl<string>;
+  // 🆕 Campo Categoria
+  categoria: FormControl<string>;
   direccion?: FormControl<string | undefined>;
   telefono?: FormControl<string | undefined>;
   precio?: FormControl<string | undefined>;
@@ -35,15 +37,20 @@ interface ReporteServicioDTO {
 })
 export class Muro implements OnInit, OnChanges {
   @Input() coordenadasEntrada: Coordenadas = { lat: 0, lng: 0 };
-  @Input() marker: ReporteEdit = {
+  @Input() marker: Reporte = {
     id: 0,
     titulo: '',
     servicio: '',
+    categoria: '',
     precio: '',
     telefono: '',
+    lat: 0,
+    lng: 0,
+    estado:'DISPONIBLE',
+    tomadoPor:''
   };
-  @Output() markerUpdated: EventEmitter<ReporteEdit> = new EventEmitter<ReporteEdit>();
-    @Output() markerNew: EventEmitter<Reporte> = new EventEmitter<Reporte>();
+  @Output() markerUpdated: EventEmitter<Reporte> = new EventEmitter<Reporte>();
+  @Output() markerNew: EventEmitter<Reporte> = new EventEmitter<Reporte>();
 
   @Output() mostrarMapaEvent = new EventEmitter<void>();
 
@@ -53,6 +60,8 @@ export class Muro implements OnInit, OnChanges {
   isBrowser: boolean = false;
   currentUser: { id: number; username: string } | null = null;
   mostrarMapa = false;
+  categorias: Categoria[] = [];
+
 
   constructor(
     private cdRef: ChangeDetectorRef,
@@ -65,11 +74,13 @@ export class Muro implements OnInit, OnChanges {
     this.miFormulario = new FormGroup<ReporteServicioDTO>({
       titulo: new FormControl('', { validators: Validators.required, nonNullable: true }),
       servicio: new FormControl('', { validators: Validators.required, nonNullable: true }),
+      // 🆕 Añadir el FormControl para categoría con un validador
+      categoria: new FormControl('', { validators: Validators.required, nonNullable: true }),
       direccion: new FormControl('', { nonNullable: true }),
       lat: new FormControl({ value: 0, disabled: true }, { nonNullable: true }),
       lng: new FormControl({ value: 0, disabled: true }, { nonNullable: true }),
       precio: new FormControl('', { nonNullable: true }),
-      telefono: new FormControl('', { nonNullable: true,  validators:  Validators.pattern(/^\d{10}$/) }),
+      telefono: new FormControl('', { nonNullable: true, validators: Validators.pattern(/^\d{10}$/) }),
       usuario: new FormControl('', { nonNullable: true }),
     });
   }
@@ -79,11 +90,26 @@ export class Muro implements OnInit, OnChanges {
 
     this.currentUser = this.authService.getCurrentUser();
     this.miFormulario.get('usuario')?.setValue(this.currentUser?.username || 'desconocido');
+    this.cargarCategorias();
   }
+cargarCategorias(): void {
+    this.reporteService.getCategorias().subscribe({
+      next: (data) => {
+        // Asigna los datos obtenidos de la BD a la propiedad del componente
+        this.categorias = data;
 
+        console.log('✅ Categorías cargadas desde BD:', this.categorias);
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar las categorías:', err);
+        // Opcional: Asignar categorías de respaldo si falla la BD
+        // this.categorias = [{ id: 0, nombre_principal: 'Error', nombre_subcategoria: 'Default', descripcion: '' }];
+      }
+    });
+  }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['marker'] && changes['marker'].currentValue) {
-      console.log("ngOnChanges ");
+      console.log('ngOnChanges ');
 
       const m = changes['marker'].currentValue as Reporte;
 
@@ -91,6 +117,8 @@ export class Muro implements OnInit, OnChanges {
       this.miFormulario.patchValue({
         titulo: m.titulo || '',
         servicio: m.servicio || '',
+        // 🆕 Aplicar el valor de categoría
+        categoria: m.categoria || '',
         telefono: m.telefono || '',
         precio: m.precio || '',
         direccion: m.direccion || '',
@@ -116,110 +144,113 @@ export class Muro implements OnInit, OnChanges {
     this.mostrarMapa = !this.mostrarMapa;
   }
 
-onSubmit(): void {
-  if (!this.miFormulario.valid) {
-    this.miFormulario.markAllAsTouched();
-    console.log('❌ Formulario Inválido');
-    return;
+  onSubmit(): void {
+    if (!this.miFormulario.valid) {
+      this.miFormulario.markAllAsTouched();
+      console.log('❌ Formulario Inválido');
+      return;
+    }
+
+    // 🧩 Verificamos si hay un marcador cargado con ID → es edición
+    const esEdicion = !!(this.marker && this.marker.id);
+
+    if (esEdicion) {
+      console.log('✏️ Editando marcador existente...');
+      this.updateMarker();
+      return;
+    }
+
+    // 🆕 Si no hay marker.id, creamos uno nuevo
+    console.log('🆕 Creando nuevo marcador...');
+
+    if (this.geocoder) {
+      this.geocoder.geocode(
+        { location: { lat: this.coordenadasEntrada.lat, lng: this.coordenadasEntrada.lng } },
+        (results, status) => {
+          this.direccion =
+            status === 'OK' && results?.length
+              ? results[0].formatted_address
+              : 'Dirección no disponible';
+
+          const nuevoReporte: Reporte = {
+            titulo: this.miFormulario.get('titulo')?.value,
+            servicio: this.miFormulario.get('servicio')?.value,
+            // 🆕 Incluir categoría
+            categoria: this.miFormulario.get('categoria')?.value,
+            direccion: this.direccion,
+            telefono: this.miFormulario.get('telefono')?.value || '',
+            precio: this.miFormulario.get('precio')?.value || '',
+            lat: this.coordenadasEntrada.lat,
+            lng: this.coordenadasEntrada.lng,
+            estado: 'DISPONIBLE',
+            usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
+          };
+
+          this.reporteService.addReporte(nuevoReporte).subscribe({
+            next: (res) => {
+              console.log('✅ Reporte guardado correctamente:', res);
+              const smallOffset = Math.random() * 0.0001 - 0.00005;
+              res.lat += smallOffset;
+              res.lng += smallOffset;
+              console.log(res.lat);
+
+              // 🔹 Emitimos con bandera para indicar que es nuevo
+              this.markerNew.emit({ ...res, esNuevo: true });
+
+              // 🔹 Reiniciamos el formulario con valores base
+              this.miFormulario.reset({
+                titulo: '',
+                servicio: '',
+                // 🆕 Reiniciar categoría a vacío
+                categoria: '',
+                direccion: '',
+                telefono: '',
+                precio: '',
+                lat: this.coordenadasEntrada.lat,
+                lng: this.coordenadasEntrada.lng,
+                usuario: this.currentUser?.username || 'desconocido',
+              });
+
+              // 🔹 Volvemos a la vista de mapa
+              this.mostrarMapaEvent.emit();
+            },
+            error: (err) => console.error('❌ Error al guardar reporte:', err),
+          });
+        }
+      );
+    }
   }
-
-  // 🧩 Verificamos si hay un marcador cargado con ID → es edición
-  const esEdicion = !!(this.marker && this.marker.id);
-
-  if (esEdicion) {
-    console.log('✏️ Editando marcador existente...');
-    this.updateMarker();
-    return;
-  }
-
-  // 🆕 Si no hay marker.id, creamos uno nuevo
-  console.log('🆕 Creando nuevo marcador...');
-
-  if (this.geocoder) {
-    this.geocoder.geocode(
-      { location: { lat: this.coordenadasEntrada.lat, lng: this.coordenadasEntrada.lng } },
-      (results, status) => {
-        this.direccion =
-          status === 'OK' && results?.length
-            ? results[0].formatted_address
-            : 'Dirección no disponible';
-
-        const nuevoReporte: Reporte = {
-          titulo: this.miFormulario.get('titulo')?.value,
-          servicio: this.miFormulario.get('servicio')?.value,
-          direccion: this.direccion,
-          telefono: this.miFormulario.get('telefono')?.value || '',
-          precio: this.miFormulario.get('precio')?.value || '',
-          lat: this.coordenadasEntrada.lat,
-          lng: this.coordenadasEntrada.lng,
-          usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
-        };
-
-        this.reporteService.addReporte(nuevoReporte).subscribe({
-          next: (res) => {
-            console.log('✅ Reporte guardado correctamente:', res);
- const smallOffset = Math.random() * 0.0001 - 0.00005;
-    res.lat += smallOffset;
-    res.lng += smallOffset;
-    console.log(res.lat);
-
-            // 🔹 Emitimos con bandera para indicar que es nuevo
-            this.markerNew.emit({ ...res, esNuevo: true });
-
-            // 🔹 Reiniciamos el formulario con valores base
-            this.miFormulario.reset({
-              titulo: '',
-              servicio: '',
-              direccion: '',
-              telefono: '',
-              precio: '',
-              lat: this.coordenadasEntrada.lat,
-              lng: this.coordenadasEntrada.lng,
-              usuario: this.currentUser?.username || 'desconocido',
-            });
-
-            // 🔹 Volvemos a la vista de mapa
-            this.mostrarMapaEvent.emit();
-          },
-          error: (err) => console.error('❌ Error al guardar reporte:', err),
-        });
-      }
-    );
-  }
-}
 
   updateMarker() {
     if (!this.marker) return;
-console.log(this.marker.id);
+    console.log(this.marker.id);
 
-    const updated: ReporteEdit = {
-
+    const updated: Reporte = {
       ...this.marker, // mantiene lat, lng, dirección
-
       titulo: this.miFormulario.get('titulo')?.value,
       servicio: this.miFormulario.get('servicio')?.value,
+      categoria: this.miFormulario.get('categoria')?.value,
       telefono: this.miFormulario.get('telefono')?.value,
       precio: this.miFormulario.get('precio')?.value,
       usuario: this.miFormulario.get('usuario')?.value,
+      lat: this.miFormulario.get('lat')?.value,
+      lng: this.miFormulario.get('lng')?.value,
     };
- console.log(updated);
-  this.reporteService.updateReporte(this.marker.id, updated).subscribe({
-    next: (res) => {
-      console.log('✅ Marcador actualizado en el servidor:', res);
+    console.log(updated);
+    this.reporteService.updateReporte(this.marker.id, updated).subscribe({
+      next: (res) => {
+        console.log('✅ Marcador actualizado en el servidor:', res);
 
-      // Emitir el evento para que Mapa actualice su lista local
-      this.markerUpdated.emit(res);
+        // Emitir el evento para que Mapa actualice su lista local
+        this.markerUpdated.emit(res);
 
-      alert('✅ Marcador actualizado correctamente');
-      this.mostrarMapaEvent.emit();
-    },
-    error: (err) => {
-      console.error('❌ Error al actualizar marcador:', err);
-      alert('⚠️ No se pudo actualizar el marcador.');
-    },
-  });
-        //this.mostrarMapaEvent.emit();
-
-   // this.markerUpdated.emit(updated);
+        alert('✅ Marcador actualizado correctamente');
+        this.mostrarMapaEvent.emit();
+      },
+      error: (err) => {
+        console.error('❌ Error al actualizar marcador:', err);
+        alert('⚠️ No se pudo actualizar el marcador.');
+      },
+    });
   }
 }

@@ -1,6 +1,8 @@
 <form
- [formGroup]="miFormulario" (ngSubmit)="onSubmit()" class="form-container">
-
+  [formGroup]="miFormulario"
+  (ngSubmit)="onSubmit()"
+  class="form-container"
+>
   <div class="form-group">
     <label for="titulo" class="form-label">Titulo:</label>
     <input
@@ -8,22 +10,49 @@
       type="text"
       formControlName="titulo"
       class="form-input"
-      [class.input-error]="miFormulario.get('titulo')?.invalid && miFormulario.get('titulo')?.touched"
-    >
+      [class.input-error]="
+        miFormulario.get('titulo')?.invalid &&
+        miFormulario.get('titulo')?.touched
+      "
+    />
   </div>
 
+<div class="form-group">
+  <label for="categoria" class="form-label">Categoría:</label>
+  <select
+    id="categoria"
+    formControlName="categoria"
+    class="form-input"
+    >
+    <option value="" disabled selected>Selecciona una categoría</option>
+
+    <option *ngFor="let cat of categorias" [value]="cat.nombreSubcategoria">
+      {{ cat.nombreSubcategoria }} ({{ cat.nombrePrincipal }})
+    </option>
+  </select>
+</div>
   <div class="form-group">
     <label for="servicio" class="form-label">Servicio:</label>
     <textarea
       id="servicio"
       formControlName="servicio"
       class="form-textarea"
-      [class.input-error]="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched"
+      [class.input-error]="
+        miFormulario.get('servicio')?.invalid &&
+        miFormulario.get('servicio')?.touched
+      "
     ></textarea>
   </div>
 
-  <div *ngIf="miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched">
-    <p *ngIf="miFormulario.get('servicio')?.errors?.['required']" class="error-message">
+  <div
+    *ngIf="
+      miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched
+    "
+  >
+    <p
+      *ngIf="miFormulario.get('servicio')?.errors?.['required']"
+      class="error-message"
+    >
       El servicio requerido es obligatorio.
     </p>
   </div>
@@ -37,8 +66,10 @@
       pattern="[0-9]*"
       formControlName="precio"
       class="form-input"
-      [class.input-error]="miFormulario.get('precio')?.invalid && miFormulario.get('precio')?.touched"
-    >
+      [class.input-error]="
+        miFormulario.get('precio')?.invalid && miFormulario.get('precio')?.touched
+      "
+    />
   </div>
 
   <div class="form-group">
@@ -50,12 +81,14 @@
       pattern="[0-9]*"
       formControlName="telefono"
       class="form-input"
-      [class.input-error]="miFormulario.get('telefono')?.invalid && miFormulario.get('telefono')?.touched"
-    >
+      [class.input-error]="
+        miFormulario.get('telefono')?.invalid &&
+        miFormulario.get('telefono')?.touched
+      "
+    />
   </div>
 
   <button type="submit" [disabled]="miFormulario.invalid" class="submit-button">
     Enviar
   </button>
-
 </form>

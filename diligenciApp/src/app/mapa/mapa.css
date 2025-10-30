@@ -1,154 +1,213 @@
-/* ---------- Header limpio y consistente ---------- */
-.header {
-  background-color: #e8f0fe;
-  padding: 12px 18px;
-  border-bottom: 1px solid #c5d7ed;
 
-  /* Layout */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
 
-/* Marca (titulo + subtitulo) */
-.header .brand {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
+ .map-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
 
-/* ---------- Estilo mejorado para título y subtítulo ---------- */
-.header .brand h1 {
-  font-family: 'Poppins', 'Segoe UI', sans-serif;
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: #1e3a8a; /* Azul profundo tipo login */
-  margin: 0;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f7f9;
+    }
 
-.header .brand p {
-  font-family: 'Poppins', 'Segoe UI', sans-serif;
-  margin: 0;
-  color: #475569;
-  font-size: 0.95rem;
-  font-weight: 500;
-  opacity: 0.85;
-  letter-spacing: 0.2px;
-}
+    .header {
+      background-color: #e8f0fe;
+      padding: 12px 18px;
+      border-bottom: 1px solid #c5d7ed;
 
-/* Contenedor derecho de controles (botones) */
-.header .controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
 
-/* Base para botones en el header */
-.header .controls button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.95rem;
-  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
-  min-height: 40px;
-  line-height: 1;
-}
+    .header .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
 
-/* Logout: icon-only round button */
-.header .controls .logout-btn {
-  background: linear-gradient(180deg, #ff6b6b 0%, #e44e4e 100%);
-  color: #fff;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border-radius: 10px;
-  font-size: 1.05rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 22px rgba(217, 83, 79, 0.12);
-}
+    .header .brand h1 {
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin: 0;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
 
-/* Refresh button */
-.header .controls .refresh-btn {
-  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
-  color: #fff;
-  padding: 8px 10px;
-  border-radius: 10px;
-}
+    .header .brand p {
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      margin: 0;
+      color: #475569;
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.85;
+      letter-spacing: 0.2px;
+    }
 
-/* Toggle button */
-.header .controls .toggle-btn {
-  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 10px;
-}
+    .header .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
 
-/* Hover / active states */
-.header .controls button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px
-28px rgba(17, 24, 39, 0.12);
-}
+    .header .controls button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
+      min-height: 40px;
+      line-height: 1;
+    }
 
-/* ---------- Estilos para la Ventana de Información (Info Window) ---------- */
+    .header .controls .logout-btn {
+      background: linear-gradient(180deg, #ff6b6b 0%, #e44e4e 100%);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 22px rgba(217, 83, 79, 0.12);
+    }
 
-/* Contenedor de las acciones dentro de la Info Window */
-.info-window .marker-actions {
-  margin-top: 10px;
-  display: flex;
-  gap: 8px; /* Espacio entre los botones */
-  justify-content: flex-start;
-}
+    .header .controls .refresh-btn {
+      background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
 
-/* Base de estilo para los botones de la Info Window */
-.info-window .marker-actions button {
-  /* Propiedades heredadas de los botones del header */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px; /* Ajuste un poco el gap para la ventana */
-  padding: 6px 10px;
-  border-radius: 8px; /* Ligeramente más pequeños */
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.9rem; /* Tamaño de fuente más pequeño */
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.08); /* Sombra más suave */
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
-  line-height: 1;
-  min-height: 34px;
-}
+    .header .controls .toggle-btn {
+      background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+    }
 
-/* Estilo específico para el botón de Editar (similar a .refresh-btn) */
-.info-window .marker-actions .btn-edit {
-  /* Azul para editar (similar al Refresh/Azul en tu header) */
-  background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
-  color: #fff;
-}
+    .header .controls button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px rgba(17, 24, 39, 0.12);
+    }
 
-/* Estilo específico para el botón de Eliminar (similar a .logout-btn) */
-.info-window .marker-actions .btn-delete {
-  /* Rojo para eliminar (similar al Logout/Rojo en tu header) */
-  background: linear-gradient(180deg, #ff6b6b 0%, #e44e4e 100%);
-  color: #fff;
-}
+    .info-window {
+      padding: 10px;
+      max-width: 250px;
+      color: #1f2937;
+    }
+    .info-window strong { font-size: 1.1em; color: #1d4ed8; }
+    .info-window span, .info-window small { display: block; margin-top: 5px; }
 
-/* Hover/active states para los botones de la Info Window */
-.info-window .marker-actions button:hover {
-  transform: translateY(-2px); /* Menos desplazamiento que en el header */
-  box-shadow: 0 8px 16px rgba(17, 24, 39, 0.15);
-}
+    .status-section {
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 10px;
+        transition: all 0.3s;
+    }
+    .bg-green-100 { background-color: #d1fae5; } .text-green-800 { color: #065f46; }
+    .bg-yellow-100 { background-color: #fef9c3; } .text-yellow-800 { color: #854d0e; }
+    .bg-gray-100 { background-color: #f3f4f6; } .text-gray-500 { color: #6b7280; }
+
+
+    .info-window .marker-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-start;
+      flex-wrap: wrap; /*Permite que los botones se envuelvan en pantallas pequeñas*/
+    }
+
+  .info-window .marker-actions button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: none;
+      transition: all 0.2s ease-out;
+      line-height: 1;
+      min-height: 40px;
+
+      flex-grow: 1;
+      min-width: 45%;
+      max-width: 100%;
+      color: white;
+    }
+    .info-window .marker-actions .btn-edit {
+      background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+      box-shadow: 0 4px 12px rgba(17, 24, 39, 0.08);
+    }
+    .info-window .marker-actions .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(17, 24, 39, 0.15);
+    }
+
+
+    .info-window .marker-actions .btn-delete {
+      background: linear-gradient(180deg, #ff6b6b 0%, #e44e4e 100%);
+      box-shadow: 0 4px 12px rgba(17, 24, 39, 0.08);
+    }
+    .info-window .marker-actions .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(17, 24, 39, 0.15);
+    }
+    .btn-take {
+        background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+        box-shadow: 0 6px 0 0 #059669;
+        font-size: 1rem;
+        text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    }
+    .btn-take:hover {
+        background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(16, 185, 129, 0.5), 0 2px 0 0 #059669;
+    }
+    .btn-take:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 0 #059669 !important;
+    }
+
+    .btn-finish {
+        background: linear-gradient(180deg, #059669 0%, #046c4f 100%);
+        box-shadow: 0 6px 0 0 #02362b;
+        font-size: 1rem;
+        text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+    }
+    .btn-finish:hover {
+        background: linear-gradient(180deg, #046c4f 0%, #02362b 100%);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(5, 150, 105, 0.5), 0 2px 0 0 #02362b;
+    }
+    .btn-finish:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 0 #02362b !important;
+    }
+
+    .info-window .marker-actions .btn-edit:active,
+    .info-window .marker-actions .btn-delete:active {
+        transform: scale(0.98);
+        box-shadow: none !important;
+    }
+
