@@ -5,24 +5,25 @@
       <p>Diligencias y Servicios</p>
     </div>
      <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+    
       <button
         type="button"
         class="btn btn-outline-success"
+         (click)="toggleVista()"
+        title="Alternar vista"
+      >
+        {{ mostrarMuro ? '🗺️ Mapa' : '🧱 Muro' }}
+      </button>
+        <button
+        type="button"
+        class="btn btn-outline-primary"
         (click)="loadMarkers()"
         title="Recargar marcadores"
       >
         &#x27F3;
       </button>
       <button
-        type="button"
-        class="btn btn-outline-primary"
-         (click)="toggleVista()"
-        title="Alternar vista"
-      >
-        {{ mostrarMuro ? '🗺️ Mapa' : '🧱 Muro' }}
-      </button>
-      <button
-        type="button" class="btn btn-outline-danger"
+        type="button" class="btn btn-outline-secondary"
         (click)="logout()"
         title="Cerrar sesión"
       >
