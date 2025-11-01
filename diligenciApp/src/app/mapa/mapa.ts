@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, QueryList, ViewChild } from '@angular/core';
 import { GoogleMapsModule, MapMarker, MapInfoWindow } from '@angular/google-maps';
 import { Coordenadas, LocationService } from '../services/location.service';
 import { Muro } from '../muro/muro';
@@ -22,7 +22,7 @@ export class Mapa implements OnInit {
     lng: 0
   };
   @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
-
+@ViewChild(MapMarker) allMarkers!: QueryList<MapMarker>;
   isLoading = false;
   errorGeoloc: string | null = null;
   selectedMarker: Reporte | null = null;
@@ -57,6 +57,7 @@ export class Mapa implements OnInit {
     this.currentUser = this.auth.getCurrentUser();
     this.getLocation();
     this.loadMarkers();
+    this.openAllMarkers()
   }
 
   toggleVista() {
@@ -246,7 +247,23 @@ loadMarkers() {
 
     infoWindow.open(markerRef);
   }
+openAllMarkers(): void {
+    // Si no hay marcadores (p.ej. la lista está vacía), salimos
+    if (!this.allMarkers || this.allMarkers.length === 0) return;
 
+    // Iteramos sobre todos los marcadores de la QueryList
+    this.allMarkers.forEach((marker: MapMarker) => {
+      console.log("dentro de foreach");
+
+      // Abrimos la única infoWindow que tenemos. Como solo hay una,
+      // se anclará al último marcador que se procese, cerrando todas las anteriores.
+      // Visualmente, simula la apertura en todos, terminando en el último.
+      this.infoWindow.open(marker);
+
+      // La línea de abajo (this.infoWindow?.close()) la puedes comentar o eliminar.
+      // Si la dejas, cerrará la ventana completamente. La eliminamos para que el último quede abierto.
+      // this.infoWindow.close();
+    });}
   editMarker(marker: Reporte) {
     console.log("edit marker ",marker);
         console.log("currentUser ",this.currentUser);
