@@ -19,15 +19,17 @@
           placeholder="Contraseña"
           required
         />
-
-        <button type="submit" class="btn-primary">Ingresar</button>
-
+<div>
+        <button type="submit"
+        class="btn btn-outline-primary">Ingresar</button>
+</div>
         <p *ngIf="error" class="error-message">{{ error }}</p>
-      </form>
-
-      <div class="extra-options">
+         <div class="extra-options">
         <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
       </div>
+      </form>
+
+
 
       <p class="toggle-text">
         ¿No tienes cuenta?
@@ -36,47 +38,83 @@
     </div>
 
     <!-- FORMULARIO REGISTRO -->
-    <div *ngIf="showRegister" class="form-section">
+    <div *ngIf="showRegister" class="form-section register-section">
       <h2>Crear Cuenta</h2>
       <form (ngSubmit)="onRegister()" #registerForm="ngForm">
-        <input
-          type="text"
-          [(ngModel)]="newUsername"
-          name="newUsername"
-          placeholder="Nuevo usuario"
-          required
-        />
+        <!-- Input Usuario -->
+        <div class="input-group">
+          <input
+            type="text"
+            [(ngModel)]="newUsername"
+            name="newUsername"
+            placeholder="Nuevo usuario"
+            required
+            #newUsernameRef="ngModel"
+          />
+          <div *ngIf="newUsernameRef.invalid && (newUsernameRef.dirty || newUsernameRef.touched)" class="validation-error">
+            <span *ngIf="newUsernameRef.errors?.['required']">El usuario es obligatorio.</span>
+          </div>
+        </div>
 
-        <input
-          type="password"
-          [(ngModel)]="newPassword"
-          name="newPassword"
-          placeholder="Nueva contraseña"
-          required
-        />
+        <!-- Input Contraseña -->
+        <div class="input-group">
+          <input
+            type="password"
+            [(ngModel)]="newPassword"
+            name="newPassword"
+            placeholder="Nueva contraseña"
+            required
+            #newPasswordRef="ngModel"
+            (input)="error = ''"
+          />
+          <div *ngIf="newPasswordRef.invalid && (newPasswordRef.dirty || newPasswordRef.touched)" class="validation-error">
+            <small *ngIf="newPasswordRef.errors?.['required']">La contraseña es obligatoria.</small>
+          </div>
+          <!-- Mensaje de fortaleza de contraseña: Se muestra como pista ya que la validación Regex es compleja -->
+          <small *ngIf="newPasswordRef.value && newPasswordRef.value.length > 0 && newPasswordRef.valid" class="password-hint">
+             Debe tener 8+ caracteres, Mayúscula, minúscula y número.
+          </small>
+        </div>
 
-        <input
-          type="email"
-          [(ngModel)]="email"
-          name="email"
-          placeholder="Correo electrónico"
-          required
-        />
+        <!-- Input Email -->
+        <div class="input-group">
+          <input
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="Correo electrónico"
+            required
+            #emailRef="ngModel"
+            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"
+          />
+          <div *ngIf="emailRef.invalid && (emailRef.dirty || emailRef.touched)" class="validation-error">
+            <small *ngIf="emailRef.errors?.['required']">El correo es obligatorio.</small>
+            <!-- Ahora verificamos 'email' (por type="email") o 'pattern' (por el regex explícito) -->
+            <small *ngIf="emailRef.errors?.['email'] || emailRef.errors?.['pattern']">El formato del email no es válido.</small>
+          </div>
+        </div>
 
-        <input
-          type="tel"
-          [(ngModel)]="phone"
-          name="phone"
-          placeholder="Teléfono (opcional)"
-        />
+        <!-- Input Teléfono -->
+        <div class="input-group">
+          <input
+            type="tel"
+            [(ngModel)]="phone"
+            name="phone"
+            placeholder="Teléfono (opcional)"
+          />
+        </div>
 
+        <!-- Botón Registrar: Se deshabilita si algún campo con 'required' es inválido -->
         <button
           type="submit"
-          class="btn-primary"
+        class="btn btn-outline-primary"
           [disabled]="registerForm.invalid"
         >
           Registrar
         </button>
+
+        <!-- Mensaje de error general (para backend o validación compleja) -->
+        <p *ngIf="error" class="error-message">{{ error }}</p>
       </form>
 
       <p class="toggle-text">

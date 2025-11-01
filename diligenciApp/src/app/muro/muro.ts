@@ -13,13 +13,13 @@ import {
   Output,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Categoria, Reporte, ReporteService } from '../services/reporte.service';
+import { Reporte, ReporteService } from '../services/reporte.service';
 import { AuthService } from '../services/auth.service';
+import { Categoria, CategoriaService } from '../services/categoria.service';
 
 interface ReporteServicioDTO {
   titulo: FormControl<string>;
   servicio: FormControl<string>;
-  // 🆕 Campo Categoria
   categoria: FormControl<string>;
   direccion?: FormControl<string | undefined>;
   telefono?: FormControl<string | undefined>;
@@ -66,6 +66,7 @@ export class Muro implements OnInit, OnChanges {
   constructor(
     private cdRef: ChangeDetectorRef,
     private reporteService: ReporteService,
+    private categoriaService:CategoriaService,
     private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
@@ -93,7 +94,7 @@ export class Muro implements OnInit, OnChanges {
     this.cargarCategorias();
   }
 cargarCategorias(): void {
-    this.reporteService.getCategorias().subscribe({
+    this.categoriaService.getCategorias().subscribe({
       next: (data) => {
         // Asigna los datos obtenidos de la BD a la propiedad del componente
         this.categorias = data;
@@ -108,16 +109,18 @@ cargarCategorias(): void {
     });
   }
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes);
+
     if (changes['marker'] && changes['marker'].currentValue) {
       console.log('ngOnChanges ');
 
       const m = changes['marker'].currentValue as Reporte;
+    console.log(m);
 
       // Actualizar valores del formulario
       this.miFormulario.patchValue({
         titulo: m.titulo || '',
         servicio: m.servicio || '',
-        // 🆕 Aplicar el valor de categoría
         categoria: m.categoria || '',
         telefono: m.telefono || '',
         precio: m.precio || '',
@@ -185,6 +188,8 @@ cargarCategorias(): void {
             estado: 'DISPONIBLE',
             usuario: this.miFormulario.get('usuario')?.value || 'anónimo',
           };
+          console.log(nuevoReporte);
+
 
           this.reporteService.addReporte(nuevoReporte).subscribe({
             next: (res) => {

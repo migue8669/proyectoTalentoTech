@@ -5,7 +5,6 @@ import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
 import { Reporte, ReporteService } from '../services/reporte.service';
 import { CommonModule } from '@angular/common';
-import { Banner } from "../banner/banner";
 
 @Component({
   selector: 'app-mapa',
@@ -79,8 +78,9 @@ export class Mapa implements OnInit {
         servicio: 'Ubicación personal',
         direccion: 'Detectada por el navegador',
         telefono: '',
+        categoria:'',
         precio: '',
-        estado: 'DISPONIBLE',
+        estado: 'NINGUNO',
         usuario: this.currentUser?.username || 'sistema',
         tomadoPor: ''
       });
@@ -94,12 +94,6 @@ export class Mapa implements OnInit {
     }
   }
     finishMarker(marker: Reporte) {
-      console.log("finish marker ", marker);
-     console.log("current user ",this.currentUser);
-
-   // if (marker.usuario == this.currentUser.username) return;
-
- //   if (!window.confirm(`¿Seguro que quieres marcar "${marker.titulo}" como finalizado?`)) return;
 
     const updatedData: Reporte = {
       estado: 'FINALIZADO',
@@ -109,6 +103,35 @@ export class Mapa implements OnInit {
       telefono: marker.telefono,
       direccion: marker.direccion,
       precio: marker.precio,
+      usuario: marker.usuario,
+      categoria:marker.categoria,
+      lat: marker.lat,
+      lng: marker.lng
+    };
+
+    this.reporteService.updateReporte(marker.id, updatedData).subscribe({
+      next: (response) => {
+        this.updateMarkerInList(marker.id!, updatedData);
+        this.infoWindow?.close();
+        this.cdRef.detectChanges();
+      },
+      error: (err) => console.error('Error al finalizar la solicitud:', err)
+    });
+  }
+
+  noFinishMarker(marker: Reporte){
+    console.log("noFinish ",marker);
+
+
+    const updatedData: Reporte = {
+      estado: 'NOEXITOSO',
+      id: marker.id,
+      titulo: marker.titulo,
+      servicio: marker.servicio,
+      telefono: marker.telefono,
+      direccion: marker.direccion,
+      precio: marker.precio,
+      categoria:marker.categoria,
       usuario: marker.usuario,
       lat: marker.lat,
       lng: marker.lng
@@ -149,6 +172,7 @@ console.log(marker.usuario);
       titulo: marker.titulo,
       servicio: marker.servicio,
       telefono: marker.telefono,
+      categoria:marker.categoria,
       direccion: marker.direccion,
       precio: marker.precio,
       lat: marker.lat,
@@ -198,6 +222,7 @@ loadMarkers() {
           direccion: m.direccion,
           telefono: m.telefono,
           precio: m.precio,
+          categoria:m.categoria,
           estado: m.estado,
           tomadoPor: m.tomadoPor,
           usuario: m.usuario || 'desconocido',
@@ -270,6 +295,7 @@ onMarkerUpdated(updated: any) {
       servicio: updated.servicio,
       precio: updated.precio,
       telefono: updated.telefono,
+      categoria:updated.categoria,
       lat: updated.lat + smallOffset,
       lng: updated.lng + smallOffset,
       usuario: updated.usuario,

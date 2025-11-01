@@ -4,17 +4,16 @@
       <h1>🌍 DiligenciApp</h1>
       <p>Diligencias y Servicios</p>
     </div>
-     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-    
+    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
       <button
         type="button"
         class="btn btn-outline-success"
-         (click)="toggleVista()"
+        (click)="toggleVista()"
         title="Alternar vista"
       >
-        {{ mostrarMuro ? '🗺️ Mapa' : '🧱 Muro' }}
+        {{ mostrarMuro ? 'Mapa' : 'Muro' }}
       </button>
-        <button
+      <button
         type="button"
         class="btn btn-outline-primary"
         (click)="loadMarkers()"
@@ -23,7 +22,8 @@
         &#x27F3;
       </button>
       <button
-        type="button" class="btn btn-outline-secondary"
+        type="button"
+        class="btn btn-outline-secondary"
         (click)="logout()"
         title="Cerrar sesión"
       >
@@ -31,8 +31,6 @@
       </button>
     </div>
   </div>
-
-
 
   <google-map
     *ngIf="mostrarMapa"
@@ -65,8 +63,8 @@
           [ngClass]="{
             'bg-green-100 text-green-300': selectedMarker.estado?.toUpperCase() === 'DISPONIBLE',
             'bg-yellow-100 text-yellow-300': selectedMarker.estado?.toUpperCase() === 'TOMADO',
-            'bg-gray-100 text-gray-300': selectedMarker.estado?.toUpperCase() === 'FINALIZADO'
-          }"
+            'bg-gray-100 text-gray-300': selectedMarker.estado?.toUpperCase() === 'FINALIZADO'||
+                                     selectedMarker.estado?.toUpperCase() === 'NOEXITOSO'    }"
         >
           <span *ngIf="selectedMarker.estado?.toUpperCase() === 'DISPONIBLE'">
             Estado: <strong>DISPONIBLE</strong> (Ofrecida por {{ selectedMarker.usuario }})
@@ -76,6 +74,9 @@
           </span>
           <span *ngIf="selectedMarker.estado?.toUpperCase() === 'FINALIZADO'">
             Estado: <strong>FINALIZADO</strong>
+          </span>
+          <span *ngIf="selectedMarker.estado?.toUpperCase() === 'NOEXITOSO'">
+            Estado: <strong>NO EXITOSO</strong>
           </span>
         </div>
 
@@ -94,32 +95,62 @@
           </button>
 
           <!-- ACCIÓN PARA FINALIZAR SOLICITUD (Solo si está tomado por el usuario actual) -->
-          <button
-            *ngIf="
-              selectedMarker.estado?.toUpperCase() === 'TOMADO' &&
-              selectedMarker.tomadoPor !== currentUser?.username
-            "
-            class="btn btn-outline-success"
-            (click)="finishMarker(selectedMarker!)"
-            type="button"
-          >
-            ✅ Finalizar Solicitud
-          </button>
+
+          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+            <button
+              *ngIf="
+                selectedMarker.estado?.toUpperCase() === 'TOMADO' &&
+                selectedMarker.tomadoPor !== currentUser?.username
+              "
+              class="btn btn-outline-success"
+              (click)="finishMarker(selectedMarker!)"
+              type="button"
+            >
+              Finalizado
+            </button>
+
+            <button
+              *ngIf="
+                selectedMarker.estado?.toUpperCase() === 'TOMADO' &&
+                selectedMarker.tomadoPor !== currentUser?.username
+              "
+              class="btn btn-outline-danger"
+              (click)="noFinishMarker(selectedMarker!)"
+              type="button"
+            >
+              No Finalizado
+            </button>
+          </div>
 
           <!-- ACCIÓN DEL PROPIETARIO (Editar/Eliminar) -->
-          <ng-container *ngIf="selectedMarker.usuario === currentUser?.username">
-            <button             type="button"
-class="btn btn-outline-primary" (click)="editMarker(selectedMarker!)">✏️ Editar</button>
-            <button             type="button"
- class="btn btn-outline-danger" (click)="deleteMarker(selectedMarker!)">🗑️ Eliminar</button>
+          <ng-container
+            *ngIf="
+              selectedMarker.usuario === currentUser?.username &&
+              selectedMarker.estado?.toUpperCase() === 'DISPONIBLE'
+            "
+          >
+            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                (click)="editMarker(selectedMarker!)"
+              >
+                ✏️ Editar
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                (click)="deleteMarker(selectedMarker!)"
+              >
+                🗑️ Eliminar
+              </button>
+            </div>
           </ng-container>
 
           <!-- MENSAJE DE ESTADO (si no hay botón de acción) -->
-   
         </div>
       </div>
     </map-info-window>
-   
   </google-map>
   <!-- MURO: FORMULARIO DE CREACIÓN/EDICIÓN -->
   <div class="muro-container">
@@ -131,5 +162,4 @@ class="btn btn-outline-primary" (click)="editMarker(selectedMarker!)">✏️ Edi
       (mostrarMapaEvent)="onMostrarMapa()"
     ></app-muro>
   </div>
-
 </div>

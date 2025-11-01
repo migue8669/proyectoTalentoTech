@@ -30,7 +30,7 @@
 /* Estilos Comunes para Inputs y Textareas */
 .form-input, .form-textarea {
     width: 100%;
-    padding: 6px 8px;
+    padding: 8px 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 12px;
@@ -40,7 +40,7 @@
 
 .form-textarea {
     resize: vertical; /* Permite redimensionar solo verticalmente */
-    min-height: 100px;
+    min-height: 80px;
 }
 
 /* Efecto de enfoque (Focus) */
@@ -64,23 +64,7 @@
 }
 
 /* Botón de Envío */
-.submit-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #28a745; /* Verde */
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 10px;
-}
 
-.submit-button:hover {
-    background-color: #218838;
-}
 
 /* Botón deshabilitado */
 .submit-button[disabled] {
