@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-banner',
@@ -8,6 +8,23 @@ import { Component } from '@angular/core';
 })
 export class Banner {
 
+
+
+  @Input() logoSrc?: string; // optional logo image url
+  @Input() productName: string = 'DiligenciApp';
+  @Input() headline: string = 'Optimiza tus diligencias con DiligenciApp Pro';
+  @Input() subheadline: string = 'La herramienta que organiza tu tiempo.';
+  @Input() ctaText: string = 'Accede ahora y obtén beneficios exclusivos';
+  @Input() ctaUrl?: string; // optional CTA link
+  navigateToCta(event: Event): void {
+  event.preventDefault();
+  if (this.ctaUrl) {
+    window.location.href = this.ctaUrl;
+  }
+}
+}
+
+/*
 // La función principal para cargar el anuncio
   loadAdsenseAd(): void {
     // Verificamos si Google Ads está cargado globalmente
@@ -31,3 +48,4 @@ export class Banner {
     }, 100);
   }
 }
+*/

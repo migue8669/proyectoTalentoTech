@@ -1,13 +1,17 @@
 <div class="map-container">
   <div class="header">
-    <div class="brand">
-      <h1>🌍 DiligenciApp</h1>
-      <p>Diligencias y Servicios</p>
-    </div>
+<div class="brand">
+  <div class="logo-text">
+   <input type="checkbox" checked enable class="logo-check" />
+    <span class="logo-name">DiligenciApp</span>
+  </div>
+      <p class="logo-tagline">Diligencias y Servicios</p>
+
+</div>
     <div class="btn-group" role="group" aria-label="Basic mixed styles example">
       <button
         type="button"
-        class="btn btn-outline-success"
+        class="btn btn-outline-info"
         (click)="toggleVista()"
         title="Alternar vista"
       >
@@ -54,6 +58,8 @@
         <strong>{{ selectedMarker.titulo }}</strong>
         <span>Servicio: {{ selectedMarker.servicio }}</span>
         <span>Categoria: {{ selectedMarker.categoria }}</span>
+                <span>Precio: {{ selectedMarker.precio }}</span>
+
         <span>Teléfono: {{ selectedMarker.telefono }}</span>
         <small>📍 {{ selectedMarker.direccion }}</small>
 
@@ -91,7 +97,7 @@
             class="btn btn-outline-info"
             (click)="takeMarker(selectedMarker!)"
           >
-            👉 Tomar Solicitud
+             Tomar Solicitud
           </button>
 
           <!-- ACCIÓN PARA FINALIZAR SOLICITUD (Solo si está tomado por el usuario actual) -->
@@ -102,7 +108,7 @@
                 selectedMarker.estado?.toUpperCase() === 'TOMADO' &&
                 selectedMarker.tomadoPor !== currentUser?.username
               "
-              class="btn btn-outline-success"
+              class="btn btn-outline-primary"
               (click)="finishMarker(selectedMarker!)"
               type="button"
             >
@@ -114,7 +120,7 @@
                 selectedMarker.estado?.toUpperCase() === 'TOMADO' &&
                 selectedMarker.tomadoPor !== currentUser?.username
               "
-              class="btn btn-outline-danger"
+              class="btn btn-outline-secondary"
               (click)="noFinishMarker(selectedMarker!)"
               type="button"
             >
@@ -135,14 +141,14 @@
                 class="btn btn-outline-primary"
                 (click)="editMarker(selectedMarker!)"
               >
-                ✏️ Editar
+                Editar
               </button>
               <button
                 type="button"
-                class="btn btn-outline-danger"
+                class="btn btn-outline-secondary"
                 (click)="deleteMarker(selectedMarker!)"
               >
-                🗑️ Eliminar
+                Eliminar
               </button>
             </div>
           </ng-container>
@@ -153,7 +159,7 @@
     </map-info-window>
   </google-map>
   <!-- MURO: FORMULARIO DE CREACIÓN/EDICIÓN -->
-  <div class="muro-container">
+  <div >
     <app-muro
       *ngIf="mostrarMuro"
       [marker]="markerBeingEdited"
@@ -161,5 +167,16 @@
       (markerUpdated)="onMarkerUpdated($event)"
       (mostrarMapaEvent)="onMostrarMapa()"
     ></app-muro>
+ </div>
+ <div class="banner">
+    <div class="dap-banner">
+      <div class="dap-left">
+      <img src="logo.png"  class="dap-logo" />
+      </div>
+      <div class="dap-right">
+        <h2 class="dap-headline">Optimiza tus diligencias con DiligenciApp Pro</h2>
+        <p class="dap-subheadline">La herramienta que organiza tu tiempo.</p>
+        <a href="#" class="dap-cta">Accede ahora y obtén beneficios exclusivos</a>
+      </div>
+    </div>
   </div>
-</div>

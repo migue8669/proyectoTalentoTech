@@ -14,6 +14,8 @@
         miFormulario.get('titulo')?.invalid &&
         miFormulario.get('titulo')?.touched
       "
+                  placeholder="Ingrese un titulo para la solicitud o servicio"
+
     />
   </div>
 
@@ -40,36 +42,30 @@
       [class.input-error]="
         miFormulario.get('servicio')?.invalid &&
         miFormulario.get('servicio')?.touched
-      "
+
+      "            placeholder="Ingrese una descripción del servicio requerido u a ofrecer"
+
     ></textarea>
   </div>
 
-  <div
-    *ngIf="
-      miFormulario.get('servicio')?.invalid && miFormulario.get('servicio')?.touched
-    "
-  >
-    <p
-      *ngIf="miFormulario.get('servicio')?.errors?.['required']"
-      class="error-message"
-    >
-      El servicio requerido es obligatorio.
-    </p>
-  </div>
+
 
   <div class="form-group">
     <label for="precio" class="form-label">Precio:</label>
-    <input
-      id="precio"
-      type="number"
-      inputmode="numeric"
-      pattern="[0-9]*"
-      formControlName="precio"
-      class="form-input"
-      [class.input-error]="
-        miFormulario.get('precio')?.invalid && miFormulario.get('precio')?.touched
-      "
-    />
+   <input
+            id="precio"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            formControlName="precio"
+            class="form-input"
+            [class.input-error]="
+              miFormulario.get('precio')?.invalid && miFormulario.get('precio')?.touched
+            "
+            placeholder="Ingrese el monto"
+                (input)="formatearMoneda($event)"
+
+          />
   </div>
 
   <div class="form-group">
@@ -85,10 +81,14 @@
         miFormulario.get('telefono')?.invalid &&
         miFormulario.get('telefono')?.touched
       "
+                  placeholder="Ingrese numero de telefono"
+
     />
   </div>
-
-  <button type="submit" [disabled]="miFormulario.invalid"  class="btn btn-outline-success">
+<div class="contenedor">
+  <div class="caja"> <button type="submit" [disabled]="miFormulario.invalid"  class="btn btn-outline-primary">
     Enviar
-  </button>
+  </button></div>
+</div>
+
 </form>

@@ -3,8 +3,9 @@
  .map-container {
       display: flex;
       flex-direction: column;
-  height: 120vh; /* ocupa toda la pantalla */
-  overflow: hidden; /* evita scroll global */
+  justify-content: space-between; /* mapa arriba, banner abajo */
+  height: 100vh; /* ocupa toda la pantalla */
+    overflow: hidden; /* evita scroll global */
         width: 100%;
 
       font-family: 'Poppins', sans-serif;
@@ -127,7 +128,7 @@
     .bg-gray-100 { background-color: #f3f4f6; } .text-gray-500 { color: #6b7280; }
 
 
-   
+
     .info-window .marker-actions .btn-edit:active,
     .info-window .marker-actions .btn-delete:active {
         transform: scale(0.98);
@@ -178,4 +179,116 @@ google-map {
   justify-content: center;
   align-items: flex-start;
 }
+.banner {
+  height: 114px; /* ajusta según el tamaño del banner */
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+}
+.banner {
+  background: linear-gradient(90deg, #0070c9 0%, #1ec0ff 100%);
+  color: white;
+  padding: 20px 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 26px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+}
 
+.dap-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+  width: 90%;
+  gap: 20px;
+}
+.dap-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dap-logo {
+  width: 125px;             /* 👈 tamaño proporcional al banner */
+  height: auto;
+    background: transparent;          /* capa intermedia transparente */
+  object-fit: contain;     /* 👈 evita distorsión */
+  border-radius: 10px;     /* 👈 opcional, por estética */
+  box-shadow: none;        /* 👈 elimina sombras del PNG */
+}
+.dap-logo-wrapper {
+  background: none;        /* sin fondo */
+  padding: 0;              /* elimina márgenes internos */
+  border-radius: 10;        /* sin bordes redondeados */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;             /* deja que el logo tome su tamaño natural */
+  height: 67px;            /* altura uniforme con el texto */
+  isolation: isolate;
+}
+.dap-headline {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.dap-subheadline {
+  font-size: 15px;
+  margin: 6px 0 14px 0;
+}
+
+.dap-cta {
+  background-color: #ffd500;
+  color: #002244;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 18px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dap-cta:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 558px) {
+  .dap-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+.logo-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;        /* sin fondo */
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.logo-check {
+  accent-color: #1976D2; /* azul tipo checkbox */
+  transform: scale(1.2);
+}
+.logo-tagline {
+  color: #1A237E; /* Mismo color oscuro o un gris para hacerlo secundario */
+  opacity: 0.8; /* Lo hacemos un poco más sutil */
+  font-size: 0.8rem; /* Tamaño más pequeño que el texto principal */
+  margin-top: -5px; /* Sube un poco el texto para que esté muy cerca del título */
+  margin-bottom: 0; /* Elimina el margen inferior */
+  font-style: italic; /* Opcional: para darle un toque de subtítulo */
+}
+.logo-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1A237E;
+}

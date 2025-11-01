@@ -5,6 +5,7 @@ import { Muro } from '../muro/muro';
 import { AuthService } from '../services/auth.service';
 import { Reporte, ReporteService } from '../services/reporte.service';
 import { CommonModule } from '@angular/common';
+import { Banner } from "../banner/banner";
 
 @Component({
   selector: 'app-mapa',

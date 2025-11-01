@@ -4,13 +4,7 @@
     <div *ngIf="!showRegister" class="form-section">
       <h2>Iniciar Sesión</h2>
       <form (ngSubmit)="onLogin()">
-        <input
-          type="text"
-          [(ngModel)]="username"
-          name="username"
-          placeholder="Usuario"
-          required
-        />
+        <input type="text" [(ngModel)]="username" name="username" placeholder="Usuario" required />
 
         <input
           type="password"
@@ -19,17 +13,14 @@
           placeholder="Contraseña"
           required
         />
-<div>
-        <button type="submit"
-        class="btn btn-outline-primary">Ingresar</button>
-</div>
+        <div>
+          <button type="submit" class="btn btn-outline-primary">Ingresar</button>
+        </div>
         <p *ngIf="error" class="error-message">{{ error }}</p>
-         <div class="extra-options">
-        <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
-      </div>
+        <div class="extra-options">
+          <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
+        </div>
       </form>
-
-
 
       <p class="toggle-text">
         ¿No tienes cuenta?
@@ -51,7 +42,10 @@
             required
             #newUsernameRef="ngModel"
           />
-          <div *ngIf="newUsernameRef.invalid && (newUsernameRef.dirty || newUsernameRef.touched)" class="validation-error">
+          <div
+            *ngIf="newUsernameRef.invalid && (newUsernameRef.dirty || newUsernameRef.touched)"
+            class="validation-error"
+          >
             <span *ngIf="newUsernameRef.errors?.['required']">El usuario es obligatorio.</span>
           </div>
         </div>
@@ -67,12 +61,18 @@
             #newPasswordRef="ngModel"
             (input)="error = ''"
           />
-          <div *ngIf="newPasswordRef.invalid && (newPasswordRef.dirty || newPasswordRef.touched)" class="validation-error">
+          <div
+            *ngIf="newPasswordRef.invalid && (newPasswordRef.dirty || newPasswordRef.touched)"
+            class="validation-error"
+          >
             <small *ngIf="newPasswordRef.errors?.['required']">La contraseña es obligatoria.</small>
           </div>
           <!-- Mensaje de fortaleza de contraseña: Se muestra como pista ya que la validación Regex es compleja -->
-          <small *ngIf="newPasswordRef.value && newPasswordRef.value.length > 0 && newPasswordRef.valid" class="password-hint">
-             Debe tener 8+ caracteres, Mayúscula, minúscula y número.
+          <small
+            *ngIf="newPasswordRef.value && newPasswordRef.value.length > 0 && newPasswordRef.valid"
+            class="password-hint"
+          >
+            Debe tener 8+ caracteres, Mayúscula, minúscula y número.
           </small>
         </div>
 
@@ -87,29 +87,25 @@
             #emailRef="ngModel"
             pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"
           />
-          <div *ngIf="emailRef.invalid && (emailRef.dirty || emailRef.touched)" class="validation-error">
+          <div
+            *ngIf="emailRef.invalid && (emailRef.dirty || emailRef.touched)"
+            class="validation-error"
+          >
             <small *ngIf="emailRef.errors?.['required']">El correo es obligatorio.</small>
             <!-- Ahora verificamos 'email' (por type="email") o 'pattern' (por el regex explícito) -->
-            <small *ngIf="emailRef.errors?.['email'] || emailRef.errors?.['pattern']">El formato del email no es válido.</small>
+            <small *ngIf="emailRef.errors?.['email'] || emailRef.errors?.['pattern']"
+              >El formato del email no es válido.</small
+            >
           </div>
         </div>
 
         <!-- Input Teléfono -->
         <div class="input-group">
-          <input
-            type="tel"
-            [(ngModel)]="phone"
-            name="phone"
-            placeholder="Teléfono (opcional)"
-          />
+          <input type="tel" [(ngModel)]="phone" name="phone" placeholder="Teléfono (opcional)" />
         </div>
 
         <!-- Botón Registrar: Se deshabilita si algún campo con 'required' es inválido -->
-        <button
-          type="submit"
-        class="btn btn-outline-primary"
-          [disabled]="registerForm.invalid"
-        >
+        <button type="submit" class="btn btn-outline-primary" [disabled]="registerForm.invalid">
           Registrar
         </button>
 

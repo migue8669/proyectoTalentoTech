@@ -1,0 +1,23 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "1234"
+    },
+
+    {
+      "id": "df77",
+      "username": "user",
+      "password": "user"
+    },
+    {
+      "id": "6b2b",
+      "username": "root",
+      "password": "root"
+    }
+  ],
+  "reportes": [
+   {}
+  ]
+}

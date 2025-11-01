@@ -1,111 +1,83 @@
-/* Contenedor del Formulario */
-.form-container {
+   /* ---------------------------------------------------------------------- */
+    /* REGLAS GLOBALES INNECESARIAS ELIMINADAS */
+    /* ---------------------------------------------------------------------- */
+
+    /* Contenedor Principal del Formulario */
+    .form-container {
+        /* Define un ancho máximo para que no se extienda demasiado en desktop */
+        max-width: 450px;
+        width: 95%;
+        margin: 0 auto; /* Centra el formulario dentro del contenedor flex de arriba */
+        padding: 15px;
+        background-color: #f3f6fa; /* Fondo oscuro para el formulario */
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Grupo de Campo (Label + Input/Textarea) */
+    .form-group {
+        margin-bottom: 16px; /* CAMBIO: Reducido para compactar */
+    }
+
+    /* Etiquetas (Legibilidad Aumentada) */
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #000000;
+        font-size: 1rem;
+    }
+
+    /* Estilos Comunes para Inputs y Textareas */
+    .form-input, .form-textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #b9c3d1;
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        color: #374151;
+        background-color: #f7f8fa;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px; /* CAMBIO: Reducido de 100px a 80px para ahorrar espacio */
+    }
+
+    /* Efecto de enfoque (Focus) */
+    .form-input:focus, .form-textarea:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.4);
+        outline: none;
+    }
+
+    /* Estilo para los Inputs con Error */
+    .input-error {
+        border-color: #dc3545 !important;
+    }
+
+    /* Mensajes de Error (Legibilidad Aumentada) */
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 5px;
+        font-weight: 600;
+    }
+    .contenedor {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-
-  width: 100%;
-  box-sizing: border-box;
-
-  background-color: #fff;
-  padding: 14px;
-  transform-origin: top center;
+  justify-content: center; /* centra horizontalmente */
+  align-items: center;      /* centra verticalmente */
 }
 
-/* Grupo de Campo (Label + Input/Textarea) */
-.form-group {
-    margin-bottom: 20px;
+.caja {
+
+  padding: 20px;
+  border-radius: 10px;
 }
 
-/* Etiquetas */
-.form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
-}
+    /* Botón de Envío (Estilo más moderno) */
 
-/* Estilos Comunes para Inputs y Textareas */
-.form-input, .form-textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 12px;
-    box-sizing: border-box; /* Asegura que el padding no cambie el ancho total */
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.form-textarea {
-    resize: vertical; /* Permite redimensionar solo verticalmente */
-    min-height: 80px;
-}
-
-/* Efecto de enfoque (Focus) */
-.form-input:focus, .form-textarea:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    outline: none;
-}
-
-/* Estilo para los Inputs con Error */
-.input-error {
-    border-color: #dc3545 !important; /* Borde rojo */
-}
-
-/* Mensajes de Error */
-.error-message {
-    color: #dc3545; /* Rojo */
-    font-size: 12px;
-    margin-top: 5px;
-    font-weight: 500;
-}
-
-/* Botón de Envío */
-
-
-/* Botón deshabilitado */
-.submit-button[disabled] {
-    background-color: #6c757d; /* Gris */
-    cursor: not-allowed;
-    opacity: 0.7;
-      margin-top: 12px;
-
-}
-html, body {
-  overflow: hidden;
-  height: 100%;
-}
-@media (max-height: 800px) {
-  .form-container {
-    transform: scale(0.9);
-  }
-}
-
-@media (max-height: 700px) {
-  .form-container {
-    transform: scale(0.8);
-  }
-}
-
-@media (max-height: 600px) {
-  .form-container {
-    transform: scale(0.7);
-  }
-}
-:host {
-  display: block;
-  height: 100%;
-  width: 100%;
-}
-
-.form-container {
-  height: 100%;
-  overflow: hidden;
-  padding: 15px;
-  transform-origin: top center;
-}
-
-/* ya tienes la escala por altura */

@@ -258,4 +258,19 @@ cargarCategorias(): void {
       },
     });
   }
+  formatearMoneda(event: any) {
+  // Obtener el valor sin caracteres no numéricos
+  const input = event.target as HTMLInputElement;
+  let valor = input.value.replace(/\D/g, ''); // elimina todo lo que no sea número
+
+  // Formatear como moneda colombiana (por ejemplo COP)
+  const valorFormateado = new Intl.NumberFormat('es-CO').format(Number(valor));
+
+  // Actualizar visualmente el campo
+  input.value = valorFormateado;
+
+  // Actualizar el FormControl (sin los puntos)
+  this.miFormulario.get('precio')?.setValue(valorFormateado, { emitEvent: false });
+}
+
 }
